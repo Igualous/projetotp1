@@ -1,0 +1,11 @@
+# depslib dependency file v1.0
+1756216592 source:c:\users\igora\downloads\lab1\main.cpp
+	<iostream>
+	"dominios.hpp"
+
+1756217424 c:\users\igora\downloads\lab1\dominios.hpp
+
+1756217576 source:c:\users\igora\downloads\lab1\dominios.cpp
+	<iostream>
+	"dominios.hpp"
+
