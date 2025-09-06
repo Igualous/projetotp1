@@ -2,37 +2,28 @@
 #include "dominios.hpp"
 using namespace std;
 
-bool Codigo::validar(int codigo) {
-    if (codigo > LIMITE)
-    {
-            return false;
-    } else {
+// **** DEFINICAO DAS FUNCOES ****
+
+bool Capacidade::validar(int valor) {
+    if (valor >= MIN && valor <= MAX) {
         return true;
+    } else {
+        return false;
     }
 }
 
-bool Codigo::setValor(int valor) {
-    if (!validar(valor)) {
-        return false;
-    } else {
-        this->valor = valor;
-        return true;
-            }
+bool Cartao::validar(int valor) {
+    // A FAZER: ALGORITMO DE LUHN
+
+
 }
 
-bool Prioridade::validar(int valor) {
-    if (valor == INVALIDO) {
+bool Codigo::validar(string valor) {
+    if (length(valor) > LIMITE) {
         return false;
     } else {
-        return true;
-        }
-}
-
-bool Prioridade::setValor(int valor) {
-    if (!validar(valor)) {
-        return false;
-    } else {
-        this->valor = valor;
-        return true;
+      // A FAZER
     }
 }
+
+

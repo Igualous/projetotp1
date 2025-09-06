@@ -1,12 +1,26 @@
 class Capacidade {
     private:
-        static const int LIMITE = 4;
+        static const int MIN = 1
+        static const int MAX = 4;
         int valor;
         bool validar(int);
     public:
         bool setValor(int);
         int getValor();
 };
+
+inline bool Capacidade::setValor(int valor) {
+    if (validar(valor)) {
+        this->valor = valor;
+        return true;
+    } else {
+        return false;
+    }
+}
+
+inline int Capacidade::getValor() {
+    return valor;
+}
 
 class Cartao {
     private:
@@ -18,6 +32,19 @@ class Cartao {
         int getValor();
 };
 
+inline bool Cartao::setValor(int valor) {
+    if (validar(valor)) {
+        this->valor = valor;
+        return true;
+    } else {
+        return false;
+    }
+}
+
+inline int Cartao::getValor() {
+    return valor;
+}
+
 class Codigo {
     private:
         static const int LIMITE = 10;
@@ -28,6 +55,18 @@ class Codigo {
         string getValor();
 };
 
+inline bool Codigo::setValor(stirng valor) {
+    if (validar(valor)) {
+        this->valor = valor;
+        return true;
+    } else {
+        return false;
+    }
+}
+
+inline string Codigo::getValor() {
+    return valor;
+ }
 class Data {
     private:
         string MES;
@@ -36,9 +75,23 @@ class Data {
         bool validar(int, string, int);
     public:
         bool setValor(int, string, int);
-        Data getValor();
+        string getValor();
 }
 
+inline bool Data::setValor(int DIA, string MES, int ANO) {
+    if (validar(DIA, MES, ANO)) {
+        this->DIA = DIA;
+        this->MES = MES;
+        this->ANO = ANO;
+        return true;
+    } else {
+        return false;
+    }
+}
+
+inline string Data::getValor() {
+    // A FAZER: transforma dia/mes/ano em uma string
+}
 
 class Dinheiro {
     private:
@@ -50,6 +103,19 @@ class Dinheiro {
         bool setValor(int);
         int getValor();
 };
+
+inline bool Dinheiro::setValor(int valor) {
+    if (validar(valor)) {
+        this->valor = valor;
+        return true;
+    } else {
+        return false;
+    }
+}
+
+inline int Dinheiro::getValor() {
+    return valor;
+}
 
 class Email {
     private:
