@@ -1,6 +1,15 @@
+#ifndef DOMINIOS_HPP_INCLUDED
+#define DOMINIOS_HPP_INCLUDED
+
+#include <string>
+#include <cctype>
+#include <iostream>
+
+using namespace std;
+
 class Capacidade {
     private:
-        static const int MIN = 1
+        static const int MIN = 1;
         static const int MAX = 4;
         int valor;
         bool validar(int);
@@ -25,23 +34,23 @@ inline int Capacidade::getValor() {
 class Cartao {
     private:
         static const int LIMITE = 16;
-        int valor;
-        bool validar(int); // algoritmo de Luhn
+        string valor;
+        bool validar(string); // algoritmo de Luhn
     public:
-        bool setValor(int);
-        int getValor();
+        bool setValor(string);
+        string getValor();
 };
 
-inline bool Cartao::setValor(int valor) {
-    if (validar(valor)) {
-        this->valor = valor;
+inline bool Cartao::setValor(string numero) {
+    if (validar(numero)) {
+        this->valor = numero;
         return true;
     } else {
         return false;
     }
 }
 
-inline int Cartao::getValor() {
+inline string Cartao::getValor() {
     return valor;
 }
 
@@ -55,7 +64,7 @@ class Codigo {
         string getValor();
 };
 
-inline bool Codigo::setValor(stirng valor) {
+inline bool Codigo::setValor(string valor) {
     if (validar(valor)) {
         this->valor = valor;
         return true;
@@ -66,23 +75,30 @@ inline bool Codigo::setValor(stirng valor) {
 
 inline string Codigo::getValor() {
     return valor;
- }
+}
+
 class Data {
     private:
         string MES;
         int DIA;
         int ANO;
+        string valor;
+        bool isBisexto(int);
         bool validar(int, string, int);
     public:
         bool setValor(int, string, int);
         string getValor();
-}
+};
 
 inline bool Data::setValor(int DIA, string MES, int ANO) {
     if (validar(DIA, MES, ANO)) {
         this->DIA = DIA;
         this->MES = MES;
         this->ANO = ANO;
+
+        string mesMaiusculo = MES;
+        transform(mesMaiusculo.begin(), mesMaiusculo.end(), mesMaiusculo.begin(), ::toupper);
+        this->valor = to_string(DIA) + "/" + mesMaiusculo + "/" + to_string(ANO);
         return true;
     } else {
         return false;
@@ -90,7 +106,7 @@ inline bool Data::setValor(int DIA, string MES, int ANO) {
 }
 
 inline string Data::getValor() {
-    // A FAZER: transforma dia/mes/ano em uma string
+    return valor;
 }
 
 class Dinheiro {
@@ -192,4 +208,4 @@ class Telefone {
         int getValor();
 };
 
-
+#endif //DOMINIOS_HPP_INCLUDED
