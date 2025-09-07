@@ -47,8 +47,8 @@ bool Codigo::validar(string valor) {
     return true;
 }
 
-bool isBisexto(int ANO){
-    return (ANO % 4 == 0 && ANO % 100 != 0) || (ANO % 200 == 0);
+bool isBissexto(int ANO){
+    return (ANO % 4 == 0 && ANO % 100 != 0) || (ANO % 400 == 0);
 }
 
 bool Data::validar(int DIA, string MES, int ANO){
@@ -66,7 +66,7 @@ bool Data::validar(int DIA, string MES, int ANO){
 
     vector<int> diasMes = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
-    if(isBisexto){
+    if(isBissexto){
         diasMes[2] = 29;
     }
 
@@ -75,3 +75,4 @@ bool Data::validar(int DIA, string MES, int ANO){
 
     return true;
 }
+
