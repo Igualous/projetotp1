@@ -18,14 +18,6 @@ class Capacidade {
         int getValor();
 };
 
-inline bool Capacidade::setValor(int valor) {
-    if (validar(valor)) {
-        this->valor = valor;
-        return true;
-    } else {
-        return false;
-    }
-}
 
 inline int Capacidade::getValor() {
     return valor;
@@ -41,15 +33,6 @@ class Cartao {
         string getValor();
 };
 
-inline bool Cartao::setValor(string numero) {
-    if (validar(numero)) {
-        this->valor = numero;
-        return true;
-    } else {
-        return false;
-    }
-}
-
 inline string Cartao::getValor() {
     return valor;
 }
@@ -63,15 +46,6 @@ class Codigo {
         bool setValor(string);
         string getValor();
 };
-
-inline bool Codigo::setValor(string valor) {
-    if (validar(valor)) {
-        this->valor = valor;
-        return true;
-    } else {
-        return false;
-    }
-}
 
 inline string Codigo::getValor() {
     return valor;
@@ -90,21 +64,6 @@ class Data {
         string getValor();
 };
 
-inline bool Data::setValor(int DIA, string MES, int ANO) {
-    if (validar(DIA, MES, ANO)) {
-        this->DIA = DIA;
-        this->MES = MES;
-        this->ANO = ANO;
-
-        string mesMaiusculo = MES;
-        transform(mesMaiusculo.begin(), mesMaiusculo.end(), mesMaiusculo.begin(), ::toupper);
-        this->valor = to_string(DIA) + "/" + mesMaiusculo + "/" + to_string(ANO);
-        return true;
-    } else {
-        return false;
-    }
-}
-
 inline string Data::getValor() {
     return valor;
 }
@@ -120,15 +79,6 @@ class Dinheiro {
         int getValor();
 };
 
-inline bool Dinheiro::setValor(int valor) {
-    if (validar(valor)) {
-        this->valor = valor;
-        return true;
-    } else {
-        return false;
-    }
-}
-
 inline int Dinheiro::getValor() {
     return valor;
 }
@@ -143,6 +93,10 @@ class Email {
         string getValor();
 };
 
+inline string Email::getValor() {
+    return valor;
+}
+
 class Endereco {
     private:
         const int MIN = 5;
@@ -154,6 +108,10 @@ class Endereco {
         string getValor();
 };
 
+inline string Endereco::getValor() {
+    return valor;
+}
+
 class Nome {
     private:
         const int MIN = 5;
@@ -164,6 +122,10 @@ class Nome {
         bool setValor(string);
         string getValor();
 };
+
+inline string Nome::getValor() {
+    return valor;
+}
 
 class Numero {
    private:
@@ -177,6 +139,10 @@ class Numero {
         int getValor(int); 
 };
 
+inline int Numero::getValor() {
+    return valor;
+}
+
 class Ramal {
     private:
         const int MIN = 0;
@@ -188,6 +154,10 @@ class Ramal {
         int getValor();
 };
 
+inline int Ramal::getValor() {
+    return valor;
+}
+
 class Senha {
     private:
         const int TAMANHO = 5;
@@ -198,6 +168,10 @@ class Senha {
         string getValor();
 };
 
+inline string Senha::getValor() {
+    return valor;
+}
+
 class Telefone {
     private:
         const int TAMANHO = 15;
@@ -207,5 +181,9 @@ class Telefone {
         bool setValor(int);
         int getValor();
 };
+
+inline int Telefone::getValor() {
+    return valor;
+}
 
 #endif //DOMINIOS_HPP_INCLUDED

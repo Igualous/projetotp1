@@ -13,6 +13,15 @@ bool Capacidade::validar(int valor) {
     }
 }
 
+bool Capacidade::setValor(int valor) {
+    if (validar(valor)) {
+        this->valor = valor;
+        return true;
+    } else {
+        return false;
+    }
+};
+
 bool Cartao::validar(string numero) {
     if(numero.size() != LIMITE) return false;
 
@@ -35,6 +44,24 @@ bool Cartao::validar(string numero) {
     }
 
     return (soma % 10 == 0);
+};
+
+bool Cartao::setValor(string numero) {
+    if (validar(numero)) {
+        this->valor = numero;
+        return true;
+    } else {
+        return false;
+    }
+};
+
+bool Codigo::setValor(string valor) {
+    if (validar(valor)) {
+        this->valor = valor;
+        return true;
+    } else {
+        return false;
+    }
 }
 
 bool Codigo::validar(string valor) {
@@ -74,5 +101,123 @@ bool Data::validar(int DIA, string MES, int ANO){
     if(DIA < 1 || DIA > maxDias) return false;
 
     return true;
+};
+
+bool Data::setValor(int DIA, string MES, int ANO) {
+    if (validar(DIA, MES, ANO)) {
+        this->DIA = DIA;
+        this->MES = MES;
+        this->ANO = ANO;
+
+        string mesMaiusculo = MES;
+        transform(mesMaiusculo.begin(), mesMaiusculo.end(), mesMaiusculo.begin(), ::toupper);
+        this->valor = to_string(DIA) + "/" + mesMaiusculo + "/" + to_string(ANO);
+        return true;
+    } else {
+        return false;
+    }
+};
+
+bool Dinheiro::validar(int valor) {
+    // A FAZER
 }
 
+bool Dinheiro::setValor(int valor) {
+    if (validar(valor)) {
+        this->valor = valor;
+        return true;
+    } else {
+        return false;
+    }
+};
+
+bool Email::validar(string valor) {
+    // A FAZER
+};
+
+bool Email::setValor(string valor) {
+    if (validar(valor)) {
+        this->valor = valor;
+        return true;
+    } else {
+        return false;
+    }
+};
+
+bool Endereco::validar(string valor) {
+    // a fazers
+};
+
+bool Endereco::setValor(string valor) {
+     if (validar(valor)) {
+        this->valor = valor;
+        return true;
+    } else {
+        return false;
+    }
+};
+
+bool Nome::validar (string valor) {
+    // a fazer
+}
+
+bool Nome::setValor(string valor) {
+     if (validar(valor)) {
+        this->valor = valor;
+        return true;
+    } else {
+        return false;
+    }
+} 
+
+bool Numero::validar(int valor) {
+    // a fazer
+}
+
+bool Numero::setValor(int valor) {
+    if (validar(valor)) {
+        this->valor = valor;
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool Ramal::validar(int valor) {
+    // a fazer
+}
+
+bool Ramal::setValor(int valor) {
+    if (validar(valor)) {
+        this->valor = valor;
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool Senha::validar(string valor) {
+    // a fazer
+}
+
+bool Senha::setValor(string valor) {
+    if (validar(valor)) {
+        this->valor = valor;
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool Telefone::validar(int valor) {
+    // a fazer
+}
+
+bool Telefone::setValor(int valor) {
+    if (validar(valor)) {
+        this->valor = valor;
+        return true;
+    } else {
+        return false;
+    }
+}
