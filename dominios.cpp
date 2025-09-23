@@ -1,223 +1,188 @@
-#include "dominios.hpp"
-#include <vector>
-#include <map>
-#include <algorithm>
+#ifndef DOMINIOS_HPP_INCLUDED
+#define DOMINIOS_HPP_INCLUDED
 
-// **** DEFINICAO DAS FUNCOES ****
+#include <string>
+#include <cctype>
+#include <iostream>
+using namespace std;
 
-bool Capacidade::validar(int valor) {
-    if (valor >= MIN && valor <= MAX) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
-bool Capacidade::setValor(int valor) {
-    if (validar(valor)) {
-        this->valor = valor;
-        return true;
-    } else {
-        return false;
-    }
+class Capacidade {
+    private:
+        static const int MIN = 1;
+        static const int MAX = 4;
+        int valor;
+        bool validar(int);
+    public:
+        bool setValor(int);
+        int getValor();
 };
 
-bool Cartao::validar(string numero) {
-    if(numero.size() != LIMITE) return false;
 
-    int soma = 0;
-    bool alternar = false;
+inline int Capacidade::getValor() {
+    return valor;
+}
 
-    for(int i = numero.size() - 1; i >= 0; i--){
-        if(!isdigit(numero[i])) return false;
-        int digito = numero[i] - '0'; // convertendo para int
-
-        if(alternar){
-            digito *= 2;
-            if(digito > 9){
-                digito -= 9;
-            }
-        }
-
-        soma += digito;
-        alternar = !alternar;
-    }
-
-    return (soma % 10 == 0);
+class Cartao {
+    private:
+        static const int LIMITE = 16;
+        string valor;
+        bool validar(string); // algoritmo de Luhn
+    public:
+        bool setValor(string);
+        string getValor();
 };
 
-bool Cartao::setValor(string numero) {
-    if (validar(numero)) {
-        this->valor = numero;
-        return true;
-    } else {
-        return false;
-    }
+inline string Cartao::getValor() {
+    return valor;
+}
+
+class Codigo {
+    private:
+        static const int LIMITE = 10;
+        string valor;
+        bool validar(string);
+    public:
+        bool setValor(string);
+        string getValor();
 };
 
-bool Codigo::setValor(string valor) {
-    if (validar(valor)) {
-        this->valor = valor;
-        return true;
-    } else {
-        return false;
-    }
+inline string Codigo::getValor() {
+    return valor;
 }
 
-bool Codigo::validar(string valor) {
-    if (valor.size() != LIMITE) return false;
-
-    for(char c : valor){
-        if(!isalnum(c)) return false;
-    }
-
-    return true;
-}
-
-bool isBissexto(int ANO){
-    return (ANO % 4 == 0 && ANO % 100 != 0) || (ANO % 400 == 0);
-}
-
-bool Data::validar(int DIA, string MES, int ANO){
-    if(ANO >= 2000 && ANO < 3000) return false;
-
-    map<string, int> mesesValidos = {
-        {"JAN", 1}, {"FEV", 2}, {"MAR", 3}, {"ABR", 4}, {"MAI", 5}, {"JUN", 6}, {"JUL", 7}, {"AGO", 8}, {"SET", 9}, {"OUT", 10}, {"NOV", 11}, {"DEZ", 12}
-    };
-
-    string mesMaiusculo = MES;
-    transform(mesMaiusculo.begin(), mesMaiusculo.end(), mesMaiusculo.begin(), ::toupper);
-
-    if(mesesValidos.find(mesMaiusculo) == mesesValidos.end()) return false;
-    int mesNumerico = mesesValidos[mesMaiusculo];
-
-    vector<int> diasMes = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-
-    if(isBissexto){
-        diasMes[2] = 29;
-    }
-
-    int maxDias = diasMes[mesNumerico];
-    if(DIA < 1 || DIA > maxDias) return false;
-
-    return true;
+class Data {
+    private:
+        string MES;
+        int DIA;
+        int ANO;
+        string valor;
+        bool isBisexto(int);
+        bool validar(int, string, int);
+    public:
+        bool setValor(int, string, int);
+        string getValor();
 };
 
-bool Data::setValor(int DIA, string MES, int ANO) {
-    if (validar(DIA, MES, ANO)) {
-        this->DIA = DIA;
-        this->MES = MES;
-        this->ANO = ANO;
+inline string Data::getValor() {
+    return valor;
+}
 
-        string mesMaiusculo = MES;
-        transform(mesMaiusculo.begin(), mesMaiusculo.end(), mesMaiusculo.begin(), ::toupper);
-        this->valor = to_string(DIA) + "/" + mesMaiusculo + "/" + to_string(ANO);
-        return true;
-    } else {
-        return false;
-    }
+class Dinheiro {
+    private:
+        const int MAX = 1000000;
+        const int MIN = 1;
+        int valor;
+        bool validar(int);
+    public:
+        bool setValor(int);
+        int getValor();
 };
 
-bool Dinheiro::validar(int valor) {
-    // A FAZER
+inline int Dinheiro::getValor() {
+    return valor;
 }
 
-bool Dinheiro::setValor(int valor) {
-    if (validar(valor)) {
-        this->valor = valor;
-        return true;
-    } else {
-        return false;
-    }
+class Email {
+    private:
+        static const int LIM = 64;
+        string valor;
+        bool validar(string);
+    public:
+        bool setValor(string);
+        string getValor();
 };
 
-bool Email::validar(string valor) {
-    // A FAZER
+inline string Email::getValor() {
+    return valor;
+}
+
+class Endereco {
+    private:
+        const int MIN = 5;
+        const int MAX = 30;
+        string valor;
+        bool validar(string);
+    public:
+        bool setValor(string);
+        string getValor();
 };
 
-bool Email::setValor(string valor) {
-    if (validar(valor)) {
-        this->valor = valor;
-        return true;
-    } else {
-        return false;
-    }
+inline string Endereco::getValor() {
+    return valor;
+}
+
+class Nome {
+    private:
+        const int MIN = 5;
+        const int MAX = 20;
+        string valor;
+        bool validar(string); 
+    public:
+        bool setValor(string);
+        string getValor();
 };
 
-bool Endereco::validar(string valor) {
-    // a fazers
+inline string Nome::getValor() {
+    return valor;
+}
+
+class Numero {
+   private:
+        const int MIN = 1;
+        const int MAX = 999;
+        int valor;
+        bool validar(int);
+
+   public:
+        bool setValor(int);
+        int getValor(int); 
 };
 
-bool Endereco::setValor(string valor) {
-     if (validar(valor)) {
-        this->valor = valor;
-        return true;
-    } else {
-        return false;
-    }
+inline int Numero::getValor() {
+    return valor;
+}
+
+class Ramal {
+    private:
+        const int MIN = 0;
+        const int MAX = 50;
+        int valor;
+        bool validar(int);
+    public:
+        bool setValor(int);
+        int getValor();
 };
 
-bool Nome::validar (string valor) {
-    // a fazer
+inline int Ramal::getValor() {
+    return valor;
 }
 
-bool Nome::setValor(string valor) {
-     if (validar(valor)) {
-        this->valor = valor;
-        return true;
-    } else {
-        return false;
-    }
-} 
+class Senha {
+    private:
+        const int TAMANHO = 5;
+        string valor;
+        bool validar(string);
+    public:
+        bool setValor(string);
+        string getValor();
+};
 
-bool Numero::validar(int valor) {
-    // a fazer
+inline string Senha::getValor() {
+    return valor;
 }
 
-bool Numero::setValor(int valor) {
-    if (validar(valor)) {
-        this->valor = valor;
-        return true;
-    } else {
-        return false;
-    }
+class Telefone {
+    private:
+        const int TAMANHO = 15;
+        int valor;
+        bool validar(int);
+    public:
+        bool setValor(int);
+        int getValor();
+};
+
+inline int Telefone::getValor() {
+    return valor;
 }
 
-bool Ramal::validar(int valor) {
-    // a fazer
-}
-
-bool Ramal::setValor(int valor) {
-    if (validar(valor)) {
-        this->valor = valor;
-        return true;
-    } else {
-        return false;
-    }
-}
-
-bool Senha::validar(string valor) {
-    // a fazer
-}
-
-bool Senha::setValor(string valor) {
-    if (validar(valor)) {
-        this->valor = valor;
-        return true;
-    } else {
-        return false;
-    }
-}
-
-bool Telefone::validar(int valor) {
-    // a fazer
-}
-
-bool Telefone::setValor(int valor) {
-    if (validar(valor)) {
-        this->valor = valor;
-        return true;
-    } else {
-        return false;
-    }
-}
+#endif //DOMINIOS_HPP_INCLUDED

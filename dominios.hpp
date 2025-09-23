@@ -4,7 +4,6 @@
 #include <string>
 #include <cctype>
 #include <iostream>
-
 using namespace std;
 
 class Capacidade {
