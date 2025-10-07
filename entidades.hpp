@@ -17,20 +17,20 @@ class Gerente: public Pessoa {
     public: 
         Ramal ramal;
         Gerente(string, string);
-}
+};
 
-void Gerente::Gerente(string email, string senha) {
-    email::setValor(email);
-    senha::setValor(senha);
-    ramal::setValor(5678);
-}
+// void Gerente::Gerente(string email, string senha) {
+//     int res1 = Email::setValor(email);
+//     int res2 = Senha::setValor(senha);
+//     int res3 = Ramal::setValor(ramal);
+// };
 
 class Hospede: public Pessoa {
     private: 
         Cartao cartao;
     public:
         Endereco endereco;
-}
+};
 
 
 
