@@ -14,7 +14,7 @@ class Pessoa {
          Nome getNome() const;        
          void setEmail(Email);
          Email getEmail() const; 
-}
+};
 class Gerente: public Pessoa {
      private:
          Senha senha; 
@@ -53,7 +53,7 @@ class Reserva {
          Dinheiro getValor() const;
          void setCodigo(Codigo);
          Codigo getCodigo() const; ;
-}
+};
 class Quarto {
      private:
          Numero numero;
@@ -72,7 +72,7 @@ class Quarto {
 
          void setRamal(Ramal);
          Ramal getRamal() const; 
-}
+};
 
 class Hotel{
      private:
@@ -91,5 +91,5 @@ class Hotel{
 
          void setCodigo(Codigo);
          Codigo getCodigo() const; ;
-}
+};
 #endif // ENTIDADES_HPP_INCLUDED
