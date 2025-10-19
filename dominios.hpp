@@ -4,7 +4,7 @@
 #include <string>
 #include <cctype>
 #include <iostream>
-using namespace std;
+#include <stdexcept>
 
 
 // ---------- Capacidade ----------
@@ -13,9 +13,9 @@ class Capacidade {
         static const int MIN = 1;
         static const int MAX = 4;
         int valor;
-        bool validar(int valor);
+        void validar(int valor);
     public:
-        bool setValor(int valor);
+        void setValor(int valor);
         int getValor() const;
 };
 inline int Capacidade::getValor() const { return valor; }
@@ -26,12 +26,12 @@ class Cartao {
     private:
         static const int LIMITE = 16;
         string valor;
-        bool validar(const string& numero); // Algoritmo de Luhn
+        void validar(const std::string& numero); // Algoritmo de Luhn
     public:
-        bool setValor(const string& numero);
-        string getValor() const;
+        void setValor(const std::string& numero);
+        std::string getValor() const;
 };
-inline string Cartao::getValor() const { return valor; }
+inline std::string Cartao::getValor() const { return valor; }
 
 
 // ---------- Codigo ----------
@@ -39,12 +39,12 @@ class Codigo {
     private:
         static const int LIMITE = 10;
         string valor;
-        bool validar(const string& codigo);
+        void validar(const std::string& codigo);
     public:
-        bool setValor(const string& codigo);
-        string getValor() const;
+        void setValor(const std::string& codigo);
+        std::string getValor() const;
 };
-inline string Codigo::getValor() const { return valor; }
+inline std::string Codigo::getValor() const { return valor; }
 
 
 // ---------- Data ----------
@@ -55,12 +55,12 @@ class Data {
         int ANO;
         string valor; // formato "dia-MES-ano", MES em {JAN..DEZ}
         static bool isBissexto(int ano);
-        bool validar(int dia, const string& mes, int ano);
+        void validar(int dia, const std::string& mes, int ano);
     public:
-        bool setValor(int dia, const string& mes, int ano);
-        string getValor() const;
+        void setValor(int dia, const std::string& mes, int ano);
+        std::string getValor() const;
 };
-inline string Data::getValor() const { return valor; }
+inline std::string Data::getValor() const { return valor; }
 
 
 // ---------- Dinheiro ----------
@@ -69,9 +69,9 @@ class Dinheiro {
         static const int MAX = 100000000; // em centavos: R$ 1.000.000,00
         static const int MIN = 1;         // em centavos: R$ 0,01
         int valor;                 // armazenado em centavos
-        bool validar(int centavos);
+        void validar(int centavos);
     public:
-        bool setValor(int centavos);
+        void setValor(int centavos);
         int getValor() const;      // retorna em centavos
 };
 inline int Dinheiro::getValor() const { return valor; }
@@ -83,12 +83,12 @@ class Email {
         static const int LIM_LOCAL = 64;    // limite da parte local (antes do '@')
         static const int LIM_DOMINIO = 255; // limite do domínio (depois do '@')
         string valor;
-        bool validar(const string& email);
+        void validar(const std::string& email);
     public:
-        bool setValor(const string& email);
-        string getValor() const;
+        void setValor(const std::string& email);
+        std::string getValor() const;
 };
-inline string Email::getValor() const { return valor; }
+inline std::string Email::getValor() const { return valor; }
 
 
 // ---------- Endereco ----------
@@ -97,12 +97,12 @@ class Endereco {
         static const int MIN = 5;
         static const int MAX = 30;
         string valor;
-        bool validar(const string& endereco);
+        void validar(const std::string& endereco);
     public:
-        bool setValor(const string& endereco);
-        string getValor() const;
+        void setValor(const std::string& endereco);
+        std::string getValor() const;
 };
-inline string Endereco::getValor() const { return valor; }
+inline std::string Endereco::getValor() const { return valor; }
 
 
 // ---------- Nome ----------
@@ -111,12 +111,12 @@ class Nome {
         static const int MIN = 5;
         static const int MAX = 20;
         string valor;
-        bool validar(const string& nome);
+        void validar(const std::string& nome);
     public:
-        bool setValor(const string& nome);
-        string getValor() const;
+        void setValor(const std::string& nome);
+        std::string getValor() const;
 };
-inline string Nome::getValor() const { return valor; }
+inline std::string Nome::getValor() const { return valor; }
 
 
 // ---------- Numero ----------
@@ -125,9 +125,9 @@ class Numero {
         static const int MIN = 1;
         static const int MAX = 999;
         int valor;
-        bool validar(int numero);
+        void validar(int numero);
     public:
-        bool setValor(int numero);
+        void setValor(int numero);
         int getValor() const;
 };
 inline int Numero::getValor() const { return valor; }
@@ -139,9 +139,9 @@ class Ramal {
         static const int MIN = 0;
         static const int MAX = 50;
         int valor;
-        bool validar(int ramal);
+        void validar(int ramal);
     public:
-        bool setValor(int ramal);
+        void setValor(int ramal);
         int getValor() const;
 };
 inline int Ramal::getValor() const { return valor; }
@@ -152,12 +152,12 @@ class Senha {
     private:
         static const int TAMANHO = 5;
         string valor;
-        bool validar(const string& senha);
+        void validar(const std::string& senha);
     public:
-        bool setValor(const string& senha);
-        string getValor() const;
+        void setValor(const std::string& senha);
+        std::string getValor() const;
 };
-inline string Senha::getValor() const { return valor; }
+inline std::string Senha::getValor() const { return valor; }
 
 
 // ---------- Telefone ----------
@@ -165,11 +165,11 @@ class Telefone {
     private:
         static const int TAMANHO = 15;
         string valor;
-        bool validar(const string& telefone);
+        void validar(const std::string& telefone);
     public:
-        bool setValor(const string& telefone);
-        string getValor() const;
+        void setValor(const std::string& telefone);
+        std::string getValor() const;
 };
-inline string Telefone::getValor() const { return valor; }
+inline std::string Telefone::getValor() const { return valor; }
 
 #endif // DOMINIOS_HPP_INCLUDED
