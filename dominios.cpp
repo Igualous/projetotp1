@@ -7,27 +7,32 @@
 using namespace std;
 
 // ---------- Capacidade ----------
-bool Capacidade::validar(int valor) {
-    return (valor >= MIN && valor <= MAX);
+void Capacidade::validar(int valor) {
+    if(valor < MIN || valor > MAX){
+        throw invalid_argument("A capacidade deve ser entre 1 e 4.");
+    }
 }
 
-bool Capacidade::setValor(int valor) {
-    if (!validar(valor)) return false;
+void Capacidade::setValor(int valor) {
+    validar(valor);
     this->valor = valor;
-    return true;
 }
 
 
 // ---------- Cartao ----------
-bool Cartao::validar(const string& numero) {
-    if (numero.size() != LIMITE) return false;
+void Cartao::validar(const string& numero) {
+    if (numero.size() != LIMITE){
+        throw invalid_argument("Numero de cartao deve ter 16 digitos.");
+    }
 
     int soma = 0;
     bool alternar = false;
 
     for (int i = static_cast<int>(numero.size()) - 1; i >= 0; --i) {
         unsigned char ch = static_cast<unsigned char>(numero[static_cast<size_t>(i)]);
-        if (!isdigit(ch)) return false;
+        if (!isdigit(ch)){
+            throw invalid_argument("Numero do cartao deve conter apenas digitos");
+        }
 
         int digito = ch - '0';
         if (alternar) {
@@ -37,30 +42,34 @@ bool Cartao::validar(const string& numero) {
         soma += digito;
         alternar = !alternar;
     }
-    return (soma % 10 == 0);
+
+    if(soma % 10 != 0){
+        throw invalid_argument("Numero de cartao invalido (falha no algoritmo de Luhn)");
+    }
 }
 
-bool Cartao::setValor(const string& numero) {
-    if (!validar(numero)) return false;
+void Cartao::setValor(const string& numero) {
+    validar(numero);
     this->valor = numero;
-    return true;
 }
 
 
 // ---------- Codigo ----------
-bool Codigo::validar(const string& codigo) {
-    if (codigo.size() != LIMITE) return false;
+void Codigo::validar(const string& codigo) {
+    if (codigo.size() != LIMITE){
+        throw invalid_argument("Quantidade de digitos invalidos");
+    }
     for (unsigned char c : codigo) {
         const bool letraMinuscula = (c >= 'a' && c <= 'z');
-        if (!(letraMinuscula || isdigit(c))) return false;
+        if (!(letraMinuscula || isdigit(c))){
+            throw invalid_argument("Digitos invalidos para o codigo.");
+        }
     }
-    return true;
 }
 
-bool Codigo::setValor(const string& codigo) {
-    if (!validar(codigo)) return false;
+void Codigo::setValor(const string& codigo) {
+    validar(codigo);
     this->valor = codigo;
-    return true;
 }
 
 
@@ -69,9 +78,11 @@ bool Data::isBissexto(int ano) {
     return (ano % 4 == 0 && ano % 100 != 0) || (ano % 400 == 0);
 }
 
-bool Data::validar(int dia, const string& mes, int ano) {
+void Data::validar(int dia, const string& mes, int ano) {
     // Ano válido: 2000..2999
-    if (ano < 2000 || ano > 2999) return false;
+    if (ano < 2000 || ano > 2999){
+        throw invalid_argument("Ano inserido fora do limite.");
+    }
 
     // Mapa de meses válidos
     static const map<string, int> mesesValidos = {
@@ -83,20 +94,23 @@ bool Data::validar(int dia, const string& mes, int ano) {
     transform(mesMaiusculo.begin(), mesMaiusculo.end(), mesMaiusculo.begin(), ::toupper);
 
     auto it = mesesValidos.find(mesMaiusculo);
-    if (it == mesesValidos.end()) return false;
+    if (it == mesesValidos.end()){
+        throw invalid_argument("Mes inserido invalido.");
+    }
     int mesNumerico = it->second;
 
     // Dias por mês
     vector<int> diasMes = {0,31,28,31,30,31,30,31,31,30,31,30,31};
     if (mesNumerico == 2 && isBissexto(ano)) diasMes[2] = 29;
 
-    if (dia < 1 || dia > diasMes[mesNumerico]) return false;
+    if (dia < 1 || dia > diasMes[mesNumerico]){
+        throw invalid_argument("Dia inserido fora do limite.");
+    }
 
-    return true;
 }
 
-bool Data::setValor(int dia, const string& mes, int ano) {
-    if (!validar(dia, mes, ano)) return false;
+void Data::setValor(int dia, const string& mes, int ano) {
+    validar(dia, mes, ano);
 
     string mesMaiusculo = mes;
     transform(mesMaiusculo.begin(), mesMaiusculo.end(), mesMaiusculo.begin(), ::toupper);
@@ -105,61 +119,88 @@ bool Data::setValor(int dia, const string& mes, int ano) {
     this->MES   = mesMaiusculo;
     this->ANO   = ano;
     this->valor = to_string(dia) + "-" + mesMaiusculo + "-" + to_string(ano); // "dia-MES-ano"
-    return true;
 }
 
 
 // ---------- Dinheiro (centavos) ----------
-bool Dinheiro::validar(int centavos) {
+void Dinheiro::validar(int centavos) {
     // MIN = 1 (R$0,01) ; MAX = 100000000 (R$1.000.000,00)
-    return centavos >= MIN && centavos <= MAX;
+    if(centavos < MIN || centavos > MAX){
+        throw invalid_argument("Valores inseridos fora do possivel");
+    }   
 }
 
-bool Dinheiro::setValor(int centavos) {
-    if (!validar(centavos)) return false;
+void Dinheiro::setValor(int centavos) {
+    validar(centavos);
     this->valor = centavos;
-    return true;
 }
 
 
 // ---------- Email ----------
 // Helpers de validação do Email
-static bool parteLocalOk(const string& parteLocal) {
-    if (parteLocal.empty() || parteLocal.size() > 64) return false;
+static void parteLocalOk(const string& parteLocal) {
+    if (parteLocal.empty()) {
+        throw invalid_argument("Email: A parte local (antes do '@') nao pode ser vazia.");
+    }
+    if (parteLocal.size() > 64) {
+        throw invalid_argument("Email: A parte local (antes do '@') excede 64 caracteres.");
+    }
 
     auto ehPermitido = [](unsigned char c){
         return (c >= 'a' && c <= 'z') || isdigit(c) || c == '.' || c == '-';
     };
 
     // Não pode iniciar/terminar com '.' ou '-'
-    if (parteLocal.front() == '.' || parteLocal.front() == '-') return false;
-    if (parteLocal.back()  == '.' || parteLocal.back()  == '-') return false;
+    if (parteLocal.front() == '.' || parteLocal.front() == '-') {
+        throw invalid_argument("Email: A parte local nao pode comecar ou terminar com '.' ou '-'.");
+    }
+    if (parteLocal.back()  == '.' || parteLocal.back()  == '-') {
+        throw invalid_argument("Email: A parte local nao pode comecar ou terminar com '.' ou '-'.");
+    }
 
     for (size_t i = 0; i < parteLocal.size(); ++i) {
         unsigned char c = static_cast<unsigned char>(parteLocal[i]);
-        if (!ehPermitido(c)) return false;
+        if (!ehPermitido(c)) {
+            throw invalid_argument("Email: A parte local contem um caractere invalido.");
+        }
 
         if (c == '.' || c == '-') {
-            if (i + 1 >= parteLocal.size()) return false;
+            if (i + 1 >= parteLocal.size()) {
+                throw invalid_argument("Email: A parte local nao pode terminar com '.' ou '-'.");
+            }
             unsigned char prox = static_cast<unsigned char>(parteLocal[i + 1]);
-            if (!((prox >= 'a' && prox <= 'z') || isdigit(prox))) return false;
+            if (!((prox >= 'a' && prox <= 'z') || isdigit(prox))) {
+                throw invalid_argument("Email: '.' ou '-' deve ser seguido por uma letra ou digito.");
+            }
         }
     }
-    return true;
 }
 
-static bool rotuloDominioOk(const string& rotulo) {
-    if (rotulo.empty()) return false;
-    if (rotulo.front() == '-' || rotulo.back() == '-') return false;
+static void rotuloDominioOk(const string& rotulo) {
+    if (rotulo.empty()) {
+        throw invalid_argument("Email: O 'rotulo' (parte do dominio) nao pode ser vazio.");
+    }
+    if (rotulo.front() == '-') {
+        throw invalid_argument("Email: O 'rotulo' do dominio nao pode comecar com '-'.");
+    }
+     if (rotulo.back() == '-') {
+        throw invalid_argument("Email: O 'rotulo' do dominio nao pode terminar com '-'.");
+    }
 
     for (unsigned char c : rotulo) {
-        if (!((c >= 'a' && c <= 'z') || isdigit(c) || c == '-')) return false;
+        if (!((c >= 'a' && c <= 'z') || isdigit(c) || c == '-')) {
+            throw invalid_argument("Email: O 'rotulo' do dominio contem caractere invalido.");
+        }
     }
-    return true;
 }
 
-static bool dominioOk(const string& dominio) {
-    if (dominio.empty() || dominio.size() > 255) return false;
+static void dominioOk(const string& dominio) {
+    if (dominio.empty()) {
+        throw invalid_argument("Email: O dominio (depois do '@') nao pode ser vazio.");
+    }
+    if (dominio.size() > 255) {
+        throw invalid_argument("Email: O dominio excede 255 caracteres.");
+    }
 
     size_t inicio = 0;
     while (true) {
@@ -168,125 +209,159 @@ static bool dominioOk(const string& dominio) {
                         ? dominio.substr(inicio)
                         : dominio.substr(inicio, ponto - inicio);
 
-        if (!rotuloDominioOk(rotulo)) return false;
+        rotuloDominioOk(rotulo);
 
-        if (ponto == string::npos) break;
+        if (ponto == string::npos) {
+            break; 
+        }
+        
         inicio = ponto + 1;
-        if (inicio >= dominio.size()) return false; // não pode terminar com ponto
+        // Checa se o email termina com um ponto (ex: "dominio.com.")
+        if (inicio >= dominio.size()) {
+            throw invalid_argument("Email: O dominio nao pode terminar com '.'.");
+        }
     }
-    return true;
 }
 
-bool Email::validar(const string& email) {
+
+void Email::validar(const string& email) {
     size_t arroba = email.find('@');
-    if (arroba == string::npos) return false;
+    
+    if (arroba == string::npos) {
+        throw invalid_argument("Email invalido: Faltando '@'.");
+    }
+    if (email.find('@', arroba + 1) != string::npos) {
+        throw invalid_argument("Email invalido: Nao pode haver mais de um '@'.");
+    }
 
     string parteLocal = email.substr(0, arroba);
     string dominio    = email.substr(arroba + 1);
 
-    // Especificação define letras 'a-z'. Não converteremos automaticamente.
-    return parteLocalOk(parteLocal) && dominioOk(dominio);
+    // Chama os helpers. Se algum deles falhar, a exceção será propagada.
+    parteLocalOk(parteLocal);
+    dominioOk(dominio);
 }
 
-bool Email::setValor(const string& email) {
-    if (!validar(email)) return false;
+void Email::setValor(const string& email) {
+    validar(email);
     this->valor = email;
-    return true;
 }
 
 
 // ---------- Endereco ----------
-bool Endereco::validar(const string& endereco) {
-    if (endereco.size() < static_cast<size_t>(MIN) || endereco.size() > static_cast<size_t>(MAX))
-        return false;
+void Endereco::validar(const string& endereco) {
+    if (endereco.size() < static_cast<size_t>(MIN) || endereco.size() > static_cast<size_t>(MAX)) {
+        throw invalid_argument("Endereco deve ter entre 5 e 30 caracteres.");
+    }
 
     auto ehPermitido = [](unsigned char c){
         return isalpha(c) || isdigit(c) || c == ',' || c == '.' || c == ' ';
     };
 
-    for (unsigned char c : endereco) if (!ehPermitido(c)) return false;
+    for (unsigned char c : endereco) {
+        if (!ehPermitido(c)) {
+            throw invalid_argument("Endereco contem caractere invalido.");
+        }
+    }
 
     auto pontuacaoOuEspaco = [](unsigned char c){ return c == ',' || c == '.' || c == ' '; };
 
     // Primeiro e último não podem ser vírgula, ponto ou espaço
-    if (pontuacaoOuEspaco(endereco.front())) return false;
-    if (pontuacaoOuEspaco(endereco.back()))  return false;
+    if (pontuacaoOuEspaco(endereco.front())) {
+        throw invalid_argument("Endereco nao pode comecar com pontuacao ou espaco.");
+    }
+    if (pontuacaoOuEspaco(endereco.back())) {
+        throw invalid_argument("Endereco nao pode terminar com pontuacao ou espaco.");
+    }
 
     for (size_t i = 0; i + 1 < endereco.size(); ++i) {
         unsigned char c  = static_cast<unsigned char>(endereco[i]);
         unsigned char nx = static_cast<unsigned char>(endereco[i + 1]);
 
         // vírgula/ponto não podem ser seguidos por vírgula/ponto
-        if ((c == ',' || c == '.') && (nx == ',' || nx == '.')) return false;
+        if ((c == ',' || c == '.') && (nx == ',' || nx == '.')) {
+            throw invalid_argument("Endereco: pontuacao nao pode ser seguida por outra pontuacao.");
+        }
 
         // espaço deve ser seguido por letra ou dígito
-        if (c == ' ' && !(isalpha(nx) || isdigit(nx))) return false;
+        if (c == ' ' && !(isalpha(nx) || isdigit(nx))) {
+            throw invalid_argument("Endereco: espaco deve ser seguido por letra ou digito.");
+        }
     }
-    return true;
 }
 
-bool Endereco::setValor(const string& endereco) {
-    if (!validar(endereco)) return false;
+void Endereco::setValor(const string& endereco) {
+    validar(endereco);
     this->valor = endereco;
-    return true;
 }
 
 
 // ---------- Nome ----------
-bool Nome::validar(const string& nome) {
-    if (nome.size() < static_cast<size_t>(MIN) || nome.size() > static_cast<size_t>(MAX))
-        return false;
+void Nome::validar(const string& nome) {
+    if (nome.size() < static_cast<size_t>(MIN) || nome.size() > static_cast<size_t>(MAX)) {
+        throw invalid_argument("Nome deve ter entre 5 e 20 caracteres.");
+    }
 
-    if (nome.front() == ' ' || nome.back() == ' ') return false;
+    if (nome.front() == ' ') {
+        throw invalid_argument("Nome nao pode comecar com espaco.");
+    }
+    if (nome.back() == ' ') {
+        throw invalid_argument("Nome nao pode terminar com espaco.");
+    }
 
     bool ultimoFoiEspaco = false;
-    for (unsigned char c : nome) {
-        if (!(isalpha(c) || c == ' ')) return false;
-        if (c == ' ' && ultimoFoiEspaco) return false; // sem espaços duplos
-        ultimoFoiEspaco = (c == ' ');
-    }
-
-    // Cada termo inicia com maiúscula
     bool inicioDePalavra = true;
+
     for (unsigned char c : nome) {
-        if (inicioDePalavra) {
-            if (!isupper(c)) return false;
-            inicioDePalavra = false;
-        } else if (c == ' ') {
+        if (!(isalpha(c) || c == ' ')) {
+            throw invalid_argument("Nome deve conter apenas letras e espacos.");
+        }
+        
+        if (c == ' ' && ultimoFoiEspaco) {
+            throw invalid_argument("Nome nao pode conter espacos duplos.");
+        }
+        ultimoFoiEspaco = (c == ' ');
+
+        if (c == ' ') {
             inicioDePalavra = true;
+        } else if (inicioDePalavra) {
+            if (!isupper(c)) {
+                throw invalid_argument("Nome: Cada termo deve comecar com letra maiuscula.");
+            }
+            inicioDePalavra = false;
         }
     }
-    return true;
 }
 
-bool Nome::setValor(const string& nome) {
-    if (!validar(nome)) return false;
+void Nome::setValor(const string& nome) {
+    validar(nome);
     this->valor = nome;
-    return true;
 }
 
 
 // ---------- Numero ----------
-bool Numero::validar(int numero) {
-    return numero >= MIN && numero <= MAX; // 1..999
+void Numero::validar(int numero) {
+    if (numero < MIN || numero > MAX) { // 1..999
+        throw invalid_argument("Numero deve estar entre 1 e 999.");
+    }
 }
 
-bool Numero::setValor(int numero) {
-    if (!validar(numero)) return false;
+void Numero::setValor(int numero) {
+    validar(numero);
     this->valor = numero;
-    return true;
 }
 
 
 // ---------- Ramal ----------
-bool Ramal::validar(int ramal) {
-    return ramal >= MIN && ramal <= MAX; // 0..50
+void Ramal::validar(int ramal) {
+    if (ramal < MIN || ramal > MAX) { // 0..50
+        throw invalid_argument("Ramal deve estar entre 0 e 50.");
+    }
 }
 
-bool Ramal::setValor(int ramal) {
-    if (!validar(ramal)) return false;
+void Ramal::setValor(int ramal) {
+    validar(ramal);
     this->valor = ramal;
-    return true;
 }
 
 
@@ -295,8 +370,10 @@ static bool ehEspecialSenha(unsigned char c) {
     return c=='!' || c=='"' || c=='#' || c=='$' || c=='%' || c=='&' || c=='?';
 }
 
-bool Senha::validar(const string& senha) {
-    if (senha.size() != static_cast<size_t>(TAMANHO)) return false;
+void Senha::validar(const string& senha) {
+    if (senha.size() != static_cast<size_t>(TAMANHO)) {
+        throw invalid_argument("Senha deve ter exatamente 5 caracteres.");
+    }
 
     bool temMinuscula = false, temMaiuscula = false, temDigito = false, temEspecial = false;
 
@@ -306,8 +383,9 @@ bool Senha::validar(const string& senha) {
         bool digito = isdigit(c);
         bool espec  = ehEspecialSenha(c);
 
-        // Alfabeto permitido
-        if (!(letra || digito || espec)) return false;
+        if (!(letra || digito || espec)) {
+            throw invalid_argument("Senha contem caractere invalido.");
+        }
 
         // Flags de composição
         temMinuscula |= islower(c);
@@ -315,37 +393,45 @@ bool Senha::validar(const string& senha) {
         temDigito    |= digito;
         temEspecial  |= espec;
 
-        // Restrições de consecutivos
         if (i > 0) {
             unsigned char p = static_cast<unsigned char>(senha[i - 1]);
-            if (isalpha(p) && letra)  return false; // duas letras seguidas
-            if (isdigit(p) && digito) return false; // dois dígitos seguidos
+            if (isalpha(p) && letra) {
+                throw invalid_argument("Senha nao pode conter duas letras seguidas.");
+            }
+            if (isdigit(p) && digito) {
+                throw invalid_argument("Senha nao pode conter dois digitos seguidos.");
+            }
         }
     }
-
-    return temMinuscula && temMaiuscula && temDigito && temEspecial;
+    
+    if (!(temMinuscula && temMaiuscula && temDigito && temEspecial)) {
+         throw invalid_argument("Senha deve conter ao menos 1 maiuscula, 1 minuscula, 1 digito e 1 especial.");
+    }
 }
 
-bool Senha::setValor(const string& senha) {
-    if (!validar(senha)) return false;
+void Senha::setValor(const string& senha) {
+    validar(senha);
     this->valor = senha;
-    return true;
 }
 
 
 // ---------- Telefone ----------
-bool Telefone::validar(const string& telefone) {
-    if (telefone.size() != static_cast<size_t>(TAMANHO)) return false; // TAMANHO = 15
-    if (telefone[0] != '+') return false;
+void Telefone::validar(const string& telefone) {
+    if (telefone.size() != static_cast<size_t>(TAMANHO)) { // TAMANHO = 15
+        throw invalid_argument("Telefone deve ter 15 caracteres (ex: +12345678901234).");
+    }
+    if (telefone[0] != '+') {
+        throw invalid_argument("Telefone deve comecar com o caractere '+'.");
+    }
     for (size_t i = 1; i < telefone.size(); ++i) {
         unsigned char c = static_cast<unsigned char>(telefone[i]);
-        if (!isdigit(c)) return false;
+        if (!isdigit(c)) {
+            throw invalid_argument("Telefone deve conter apenas digitos apos o '+'.");
+        }
     }
-    return true;
 }
 
-bool Telefone::setValor(const string& telefone) {
-    if (!validar(telefone)) return false;
+void Telefone::setValor(const string& telefone) {
+    validar(telefone);
     this->valor = telefone;
-    return true;
 }

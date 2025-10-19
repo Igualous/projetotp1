@@ -1,9 +1,11 @@
 #include "dominios.hpp"
 #include <iostream>
+#include <stdexcept>
 using namespace std;
 
 int main() {
     // ---------- Capacidade ----------
+    cout << "ola mundo";
     Capacidade cap;
     cout << "Capacidade 3: " << cap.setValor(3) << endl;    // ok
     cout << "Capacidade 7: " << cap.setValor(7) << endl;    // fail
