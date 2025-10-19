@@ -25,7 +25,7 @@ inline int Capacidade::getValor() const { return valor; }
 class Cartao {
     private:
         static const int LIMITE = 16;
-        string valor;
+        std::string valor;
         void validar(const std::string& numero); // Algoritmo de Luhn
     public:
         void setValor(const std::string& numero);
@@ -38,7 +38,7 @@ inline std::string Cartao::getValor() const { return valor; }
 class Codigo {
     private:
         static const int LIMITE = 10;
-        string valor;
+        std::string valor;
         void validar(const std::string& codigo);
     public:
         void setValor(const std::string& codigo);
@@ -50,10 +50,10 @@ inline std::string Codigo::getValor() const { return valor; }
 // ---------- Data ----------
 class Data {
     private:
-        string MES;
+        std::string MES;
         int DIA;
         int ANO;
-        string valor; // formato "dia-MES-ano", MES em {JAN..DEZ}
+        std::string valor; // formato "dia-MES-ano", MES em {JAN..DEZ}
         static bool isBissexto(int ano);
         void validar(int dia, const std::string& mes, int ano);
     public:
@@ -82,7 +82,7 @@ class Email {
     private:
         static const int LIM_LOCAL = 64;    // limite da parte local (antes do '@')
         static const int LIM_DOMINIO = 255; // limite do domínio (depois do '@')
-        string valor;
+        std::string valor;
         void validar(const std::string& email);
     public:
         void setValor(const std::string& email);
@@ -96,7 +96,7 @@ class Endereco {
     private:
         static const int MIN = 5;
         static const int MAX = 30;
-        string valor;
+        std::string valor;
         void validar(const std::string& endereco);
     public:
         void setValor(const std::string& endereco);
@@ -110,7 +110,7 @@ class Nome {
     private:
         static const int MIN = 5;
         static const int MAX = 20;
-        string valor;
+        std::string valor;
         void validar(const std::string& nome);
     public:
         void setValor(const std::string& nome);
@@ -151,7 +151,7 @@ inline int Ramal::getValor() const { return valor; }
 class Senha {
     private:
         static const int TAMANHO = 5;
-        string valor;
+        std::string valor;
         void validar(const std::string& senha);
     public:
         void setValor(const std::string& senha);
@@ -164,7 +164,7 @@ inline std::string Senha::getValor() const { return valor; }
 class Telefone {
     private:
         static const int TAMANHO = 15;
-        string valor;
+        std::string valor;
         void validar(const std::string& telefone);
     public:
         void setValor(const std::string& telefone);

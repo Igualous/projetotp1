@@ -3,8 +3,6 @@
 
 #include "dominios.hpp"
 
-using namespace std;
-
 class Pessoa {
      private:
          Nome nome;
@@ -18,8 +16,8 @@ class Pessoa {
 class Gerente: public Pessoa {
      private:
          Senha senha; 
-     public: 
          Ramal ramal;
+     public: 
          void setSenha(Senha);
          Senha getSenha() const;         
          void setRamal(Ramal);
