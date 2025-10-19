@@ -1,0 +1,28 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Compilar Projeto C++ (g++)",
+            "type": "shell",
+            "command": "/usr/bin/g++",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                
+                "${workspaceFolder}/main.cpp",
+                "${workspaceFolder}/dominios.cpp",
+                "${workspaceFolder}/entidades.cpp",
+                
+                "-o",
+                "${workspaceFolder}/projetotp1"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
+        }
+    ]
+}
