@@ -1,0 +1,11 @@
+# binários/artefatos
+*.exe
+*.obj
+*.o
+*.out
+*.log
+
+# pastas comuns de build
+build/
+bin/
+dist/
