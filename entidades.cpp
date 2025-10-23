@@ -1,5 +1,16 @@
-#include <iostream>
+/**
+ * @file entidades.cpp
+ * @brief Implementa os métodos das entidades (Pessoa, Gerente, Hospede, Reserva, Quarto, Hotel).
+ *
+ * Este arquivo contém as implementações correspondentes às declarações de entidades.hpp.
+ * Exceções de validação são lançadas pelos próprios domínios (RNF 7), quando aplicável.
+ *
+ * @see entidades.hpp
+ * @see dominios.hpp
+ */
+
 #include "entidades.hpp"
+#include <iostream>
 #include <string>
 
 using namespace std;
@@ -57,6 +68,14 @@ void Hospede::setEndereco(Endereco novoEndereco) {
 
 Endereco Hospede::getEndereco() const {
      return this->endereco;
+}
+
+void Hospede::setSenha(Senha senha) {
+    this->senha = senha;
+}
+
+Senha Hospede::getSenha() const {
+    return this->senha;
 }
 
 
