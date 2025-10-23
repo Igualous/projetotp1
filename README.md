@@ -39,6 +39,19 @@ O sistema segue uma **arquitetura em 3 camadas (3-Tier Architecture)** para gara
 - **Documentação:** Doxygen (planejado)
 - **Banco de Dados (Opcional):** SQLite (planejado)
 
+## 📚 Documentação (Doxygen)
+
+A documentação das entidades/domínios é gerada com **Doxygen**.
+
+### Pré-requisitos
+- Doxygen (testado com `1.15.0`)
+
+### Como gerar
+No diretório do projeto:
+```bash
+doxygen Doxyfile
+
+
 ## 🚀 Como Executar
 
 **Pré-requisitos:**

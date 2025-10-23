@@ -1,0 +1,15 @@
+PROJECT_NAME           = "TP1 - Documentação das Entidades"
+OUTPUT_DIRECTORY       = docs
+GENERATE_HTML          = YES
+GENERATE_LATEX         = NO
+INPUT                  = entidades.hpp entidades.cpp dominios.hpp dominios.cpp
+RECURSIVE              = NO
+FILE_PATTERNS          = *.hpp *.cpp
+EXTRACT_ALL            = YES
+JAVADOC_AUTOBRIEF      = YES
+ALPHABETICAL_INDEX     = YES
+GENERATE_TREEVIEW      = YES
+FULL_PATH_NAMES        = NO
+WARN_IF_UNDOCUMENTED   = NO
+WARN_IF_DOC_ERROR      = YES
+WARN_NO_PARAMDOC       = NO
