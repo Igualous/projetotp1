@@ -74,5 +74,5 @@ doxygen Doxyfile
 ## 👨‍💻 Autores
 
 - **Arthur Fernandes Vargas** - github.com/aarthurv77 (https://github.com/aarthurv77)
-- **Igor Araújo Rodrigues** - [github.com/[USUARIO_ALUNO_2]](https://github.com/[USUARIO_ALUNO_2])
-- **Hendrick Henrique Moreno Quevedo** - [github.com/[USUARIO_ALUNO_3]](https://github.com/[USUARIO_ALUNO_3])
+- **Igor Araújo Rodrigues** -[github.com/Igualous (https://github.com/Igualous)
+- **Hendrick Henrique Moreno Quevedo** - [github.com/Hendrickhmq (https://github.com/Hendrickhmq)
