@@ -146,68 +146,43 @@ public:
 /**
  * @brief Classe entidade que representa uma Reserva.
  *
- * Modela uma reserva com período (chegada/partida), valor e um código identificador.
- * Mantém objetos de domínio já validados (Data, Dinheiro, Codigo).
+ * Mantém período, valor e vínculos com hotel/quarto/hóspede.
+ * Usa objetos de domínio já validados (Data, Dinheiro, Codigo, Numero, Email).
  */
 class Reserva {
 private:
-    Data     chegada; /**< Data de check-in da reserva. */
-    Data     partida; /**< Data de check-out da reserva. */
-    Dinheiro valor;   /**< Valor total (em centavos) da reserva. */
-    Codigo   codigo;  /**< Código identificador da reserva. */
+    Codigo   codigo;   /**< Código identificador da reserva (chave). */
+    Codigo   hotel;    /**< Código do hotel onde está o quarto reservado. */
+    Numero   numero;   /**< Número do quarto reservado dentro do hotel. */
+    Email    hospede;  /**< Email do hóspede que fez a reserva. */
+    Data     chegada;  /**< Data de check-in. */
+    Data     partida;  /**< Data de check-out. */
+    Dinheiro valor;    /**< Valor total da reserva (centavos). */
 
 public:
-    /**
-     * @brief Define a data de chegada (check-in).
-     * @param chegada Objeto Data já validado.
-     * @throws ValidationError Se o domínio Data lançar exceção ao validar (RNF 7).
-     */
-    void setChegada(Data chegada);
-
-    /**
-     * @brief Retorna a data de chegada (check-in).
-     * @return Objeto Data atualmente armazenado.
-     */
-    Data getChegada() const;
-
-    /**
-     * @brief Define a data de partida (check-out).
-     * @param partida Objeto Data já validado.
-     * @throws ValidationError Se o domínio Data lançar exceção ao validar (RNF 7).
-     */
-    void setPartida(Data partida);
-
-    /**
-     * @brief Retorna a data de partida (check-out).
-     * @return Objeto Data atualmente armazenado.
-     */
-    Data getPartida() const;
-
-    /**
-     * @brief Define o valor total da reserva.
-     * @param valor Objeto Dinheiro já validado (centavos).
-     * @throws ValidationError Se o domínio Dinheiro lançar exceção ao validar (RNF 7).
-     */
-    void setValor(Dinheiro valor);
-
-    /**
-     * @brief Retorna o valor total da reserva.
-     * @return Objeto Dinheiro atualmente armazenado.
-     */
-    Dinheiro getValor() const;
-
-    /**
-     * @brief Define o código identificador da reserva.
-     * @param codigo Objeto Codigo já validado.
-     * @throws ValidationError Se o domínio Codigo lançar exceção ao validar (RNF 7).
-     */
-    void setCodigo(Codigo codigo);
-
-    /**
-     * @brief Retorna o código identificador da reserva.
-     * @return Objeto Codigo atualmente armazenado.
-     */
+    // Código (chave)
+    void   setCodigo(Codigo codigo);
     Codigo getCodigo() const;
+
+    // Vínculos
+    void   setHotel(Codigo hotel);
+    Codigo getHotel() const;
+
+    void   setNumero(Numero numero);
+    Numero getNumero() const;
+
+    void   setHospede(Email email);
+    Email  getHospede() const;
+
+    // Período e valor
+    void     setChegada(Data chegada);
+    Data     getChegada() const;
+
+    void     setPartida(Data partida);
+    Data     getPartida() const;
+
+    void     setValor(Dinheiro valor);
+    Dinheiro getValor() const;
 };
 
 /**
