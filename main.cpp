@@ -219,11 +219,11 @@ int main() {
 
     Hotel hotel1;
     hotel1.setGerente(&gerente1);
+    hotel1.setCodigo(cod);
 
     Quarto quarto1;
     quarto1.setHotel(hotel1.getCodigo());
     
-    hotel1.setCodigo(cod);
     cout << "Codigo do hotel: " << hotel1.getCodigo().getValor() << endl;
 
     cout << "Codigo do hotel do quarto: " << quarto1.getHotel().getValor() << endl;
