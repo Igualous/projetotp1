@@ -113,6 +113,16 @@ Codigo Reserva::getCodigo() const {
      return this->codigo;
 }
 
+void Reserva::setHotel(Codigo v)   { hotel = v; }
+Codigo Reserva::getHotel() const   { return hotel; }
+
+void Reserva::setNumero(Numero v)  { numero = v; }
+Numero Reserva::getNumero() const  { return numero; }
+
+void Reserva::setHospede(Email v)  { hospede = v; }
+Email  Reserva::getHospede() const { return hospede; }
+
+
 
 // ----------  QUARTO  ---------- 
 
