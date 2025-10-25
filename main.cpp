@@ -214,25 +214,183 @@ int main() {
     cout << "\n--- Testes de Dominio Concluidos ---" << endl;
     cout << "\n --- Testes de Relacionamentos --- " << endl;
 
-    Gerente gerente;
-    gerente.setNome(nome);
+    Gerente gerente1;
+    gerente1.setNome(nome);
 
-    Hotel hotel;
-    hotel.setGerente(&gerente);
+    Hotel hotel1;
+    hotel1.setGerente(&gerente1);
 
-    Quarto quarto;
-    quarto.setHotel(hotel.getCodigo());
+    Quarto quarto1;
+    quarto1.setHotel(hotel1.getCodigo());
     
-    hotel.setCodigo(cod);
-    cout << "Codigo do hotel: " << hotel.getCodigo().getValor() << endl;
+    hotel1.setCodigo(cod);
+    cout << "Codigo do hotel: " << hotel1.getCodigo().getValor() << endl;
 
-    cout << "Codigo do hotel do quarto: " << quarto.getHotel().getValor() << endl;
+    cout << "Codigo do hotel do quarto: " << quarto1.getHotel().getValor() << endl;
 
-    cout << "Nome do gerente: " << gerente.getNome().getValor() << endl;
+    cout << "Nome do gerente: " << gerente1.getNome().getValor() << endl;
 
-    cout << "Nome do gerente do hotel: " << hotel.getGerente()->getNome().getValor() << endl;
+    cout << "Nome do gerente do hotel: " << hotel1.getGerente()->getNome().getValor() << endl;
 
     cout << "\n --- Testes de Relacionamentos Concluídos --- " << endl;
+    cout << " --- Testes de Entidades Iniciado ---- " << endl;
+
+    // ------ Gerente --------
+    cout << "\n[Testando Entidades: Gerente]" << endl;
+    Gerente gerente;
+
+    try {
+        gerente.setNome(nome);
+        testar("Atribuir nome valido ao gerente", true);
+    } catch (const invalid_argument& e) {
+        cout << "Erro na atribuicao de nome ao gerente: " << e.what() << endl;
+    }
+
+    try {
+        gerente.setEmail(email);
+        testar("Atribuir email valido ao gerente", true);
+    } catch (const invalid_argument& e) {
+        cout << "Erro na atribuicao de email ao gerente: " << e.what() << endl;
+    }
+
+    try {
+        gerente.setSenha(senha);
+        testar("Atribuir senha valido ao gerente", true);
+    } catch (const invalid_argument& e) {
+        cout << "Erro na atribuicao de senha ao gerente: " << e.what() << endl;
+    }
+
+    try {
+        gerente.setRamal(ramal);
+        testar("Atribuir ramal valido ao gerente", true);
+    } catch (const invalid_argument& e) {
+        cout << "Erro na atribuicao de ramal ao gerente: " << e.what() << endl;
+    }
+
+    // ------- Hospede --------
+    cout << "\n[Testando Entidades: Hospede]" << endl;
+    Hospede hospede;
+    try {
+        hospede.setCartao(cartao);
+        testar("Atribuir cartao valido ao hospede", true);
+    } catch (const invalid_argument& e) {
+        cout << "Erro na atribuicao de cartao ao hospede: " << e.what() << endl;
+    }
+
+    try {
+        hospede.setEndereco(end);
+        testar("Atribuir endereco valido ao hospede", true);
+    } catch (const invalid_argument& e) {
+        cout << "Erro na atribuicao de endereco ao hospede: " << e.what() << endl;
+    }
+
+    try {
+        hospede.setSenha(senha);
+        testar("Atribuir senha valida ao hospede", true);
+    } catch (const invalid_argument& e) {
+        cout << "Erro na atribuicao de senha ao hospede: " << e.what() << endl;
+    }
+
+    // ------- Reserva --------
+    cout << "\n[Testando Entidades: Reserva]" << endl;
+
+    Reserva reserva;
+    Data chegada;
+    chegada.setValor(22, "FEV", 2024);
+    Data partida;
+    partida.setValor(24, "FEV", 2024);
+    try {
+        reserva.setChegada(chegada);
+        testar("Atribuir chegada valida a reserva", true);
+    } catch (const invalid_argument& e) {
+        cout << "Erro na atribuicao de chegada a reserva: " << e.what() << endl;
+    }
+
+    try {
+        reserva.setPartida(partida);
+        testar("Atribuir partida valida a reserva", true);
+    } catch (const invalid_argument& e) {
+        cout << "Erro na atribuicao de partida a reserva: " << e.what() << endl;
+    }
+
+    try {
+        reserva.setValor(din);
+        testar("Atribuir valor valido a reserva", true);
+    } catch (const invalid_argument& e) {
+        cout << "Erro na atribuicao de valor a reserva: " << e.what() << endl;
+    }
+
+    try {
+        reserva.setCodigo(cod);
+        testar("Atribuir codigo valido a reserva", true);
+    } catch (const invalid_argument& e) {
+        cout << "Erro na atribuicao de codigo a reserva: " << e.what() << endl;
+    }
+
+    // ------- Quarto --------
+    cout << "\n[Testando Entidades: Quarto]" << endl;
+    Quarto quarto;
+
+    try {
+        quarto.setNumero(num);
+        testar("Atribuir numero valido ao quarto", true);
+    } catch (const invalid_argument& e) {
+        cout << "Erro na atribuicao de numero ao quarto: " << e.what() << endl;
+    }
+
+    try {
+        quarto.setCapacidade(cap);
+        testar("Atribuir capacidade valida ao quarto", true);
+    } catch (const invalid_argument& e) {
+        cout << "Erro na atribuicao de capacidade ao quarto: " << e.what() << endl;
+    }
+
+    try {
+        quarto.setDiaria(din);
+        testar("Atribuir diaria valida ao quarto", true);
+    } catch (const invalid_argument& e) {
+        cout << "Erro na atribuicao de diaria ao quarto: " << e.what() << endl;
+    }
+
+    try {
+        quarto.setRamal(ramal);
+        testar("Atribuir ramal valido ao quarto", true);
+    } catch (const invalid_argument& e) {
+        cout << "Erro na atribuicao de ramal ao quarto: " << e.what() << endl;
+    }
+    // ------- Hotel --------
+    cout << "\n[Testando Entidades: Hotel]" << endl;
+    Hotel hotel;
+
+    try {
+        hotel.setNome(nome);
+        testar("Atribuir nome valido ao hotel", true);
+    } catch (const invalid_argument& e) {
+        cout << "Erro na atribuicao de nome ao hotel: " << e.what() << endl;
+    }
+
+    try {
+        hotel.setEndereco(end);
+        testar("Atribuir endereco valido ao hotel", true);
+    } catch (const invalid_argument& e) {
+        cout << "Erro na atribuicao de endereco ao hotel: " << e.what() << endl;
+    }
+
+    try {
+        hotel.setTelefone(tel);
+        testar("Atribuir telefone valido ao hotel", true);
+    } catch (const invalid_argument& e) {
+        cout << "Erro na atribuicao de telefone ao hotel: " << e.what() << endl;
+    }
+
+    try {
+        hotel.setCodigo(cod);
+        testar("Atribuir codigo valido ao hotel", true);
+    } catch (const invalid_argument& e) {
+        cout << "Erro na atribuicao de codigo ao hotel: " << e.what() << endl;
+    }
+
+    cout << " --- Testes de Entidades Concluído ---- " << endl;
 
     return 0;
 }
