@@ -134,6 +134,14 @@ Numero Quarto::getNumero() const {
      return this->numero;
 }
 
+void Quarto::setHotel(Codigo codigoHotel) {
+     this->codigoHotel = codigoHotel;
+}
+
+Codigo Quarto::getHotel() const {
+     return this->codigoHotel;
+}
+
 void Quarto::setCapacidade(Capacidade novaCapacidade) {
      this->capacidade = novaCapacidade;
 }
@@ -191,4 +199,12 @@ void Hotel::setCodigo(Codigo novoCodigo) {
 
 Codigo Hotel::getCodigo() const {
      return this->codigo;
+}
+
+void Hotel::setGerente(Gerente *gerente) {
+    this->gerente = gerente;
+}
+
+Gerente* Hotel::getGerente() const {
+    return gerente;
 }

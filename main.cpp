@@ -212,5 +212,27 @@ int main() {
     }
 
     cout << "\n--- Testes de Dominio Concluidos ---" << endl;
+    cout << "\n --- Testes de Relacionamentos --- " << endl;
+
+    Gerente gerente;
+    gerente.setNome(nome);
+
+    Hotel hotel;
+    hotel.setGerente(&gerente);
+
+    Quarto quarto;
+    quarto.setHotel(hotel.getCodigo());
+    
+    hotel.setCodigo(cod);
+    cout << "Codigo do hotel: " << hotel.getCodigo().getValor() << endl;
+
+    cout << "Codigo do hotel do quarto: " << quarto.getHotel().getValor() << endl;
+
+    cout << "Nome do gerente: " << gerente.getNome().getValor() << endl;
+
+    cout << "Nome do gerente do hotel: " << hotel.getGerente()->getNome().getValor() << endl;
+
+    cout << "\n --- Testes de Relacionamentos Concluídos --- " << endl;
+
     return 0;
 }
