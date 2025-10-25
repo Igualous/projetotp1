@@ -212,6 +212,27 @@ int main() {
     }
 
     cout << "\n--- Testes de Dominio Concluidos ---" << endl;
+    cout << "\n --- Testes de Relacionamentos --- " << endl;
+
+    Gerente gerente1;
+    gerente1.setNome(nome);
+
+    Hotel hotel1;
+    hotel1.setGerente(&gerente1);
+
+    Quarto quarto1;
+    quarto1.setHotel(hotel1.getCodigo());
+    
+    hotel1.setCodigo(cod);
+    cout << "Codigo do hotel: " << hotel1.getCodigo().getValor() << endl;
+
+    cout << "Codigo do hotel do quarto: " << quarto1.getHotel().getValor() << endl;
+
+    cout << "Nome do gerente: " << gerente1.getNome().getValor() << endl;
+
+    cout << "Nome do gerente do hotel: " << hotel1.getGerente()->getNome().getValor() << endl;
+
+    cout << "\n --- Testes de Relacionamentos Concluídos --- " << endl;
     cout << " --- Testes de Entidades Iniciado ---- " << endl;
 
     // ------ Gerente --------
@@ -243,7 +264,7 @@ int main() {
         gerente.setRamal(ramal);
         testar("Atribuir ramal valido ao gerente", true);
     } catch (const invalid_argument& e) {
-        cout << "Erro na atribuicaramal ao gerente: " << e.what() << endl;
+        cout << "Erro na atribuicao de ramal ao gerente: " << e.what() << endl;
     }
 
     // ------- Hospede --------
@@ -369,6 +390,7 @@ int main() {
         cout << "Erro na atribuicao de codigo ao hotel: " << e.what() << endl;
     }
 
+    cout << " --- Testes de Entidades Concluído ---- " << endl;
 
     return 0;
 }

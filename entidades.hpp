@@ -194,6 +194,7 @@ public:
 class Quarto {
 private:
     Numero     numero;     /**< Número identificador do quarto. */
+    Codigo     codigoHotel;      /**< Código do hotel onde o quarto se encontra. */
     Capacidade capacidade; /**< Capacidade máxima de hóspedes. */
     Dinheiro   diaria;     /**< Valor da diária (em centavos). */
     Ramal      ramal;      /**< Ramal interno do quarto (se aplicável). */
@@ -212,6 +213,10 @@ public:
      */
     Numero getNumero() const;
 
+    // Vínculo
+    void setHotel(Codigo codigoHotel);
+
+    Codigo getHotel() const;
     /**
      * @brief Define a capacidade do quarto.
      * @param capacidade Objeto Capacidade já validado.
@@ -264,7 +269,7 @@ private:
     Endereco endereco; /**< Endereço do hotel. */
     Telefone telefone; /**< Telefone de contato principal. */
     Codigo   codigo;   /**< Código identificador interno/externo do hotel. */
-
+    Gerente *gerente; /** < Ponteiro para o objeto Gerente do hotel */
 public:
     /**
      * @brief Define o nome do hotel.
@@ -317,6 +322,18 @@ public:
      * @return Objeto Codigo atualmente armazenado.
      */
     Codigo getCodigo() const;
+
+    /**
+     * @brief Define o gerente responsável pelo hotel.
+     * @param gerente Ponteiro para o objeto Gerente.
+     */
+    void setGerente(Gerente *gerente);
+
+    /**
+     * @brief Retorna o gerente responsável pelo hotel.
+     * @return Ponteiro para o objeto Gerente atualmente armazenado.
+     */
+    Gerente* getGerente() const;
 };
 
 #endif // ENTIDADES_HPP_INCLUDED
