@@ -1,5 +1,8 @@
 #include "dominios.hpp"
 #include "entidades.hpp"
+#include "pages/services/funcoes.hpp"
+#include "pages/cadastro.cpp"
+#include "pages/login.cpp"
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -10,7 +13,7 @@ void testar(const string& nomeTeste, bool sucesso) {
     cout << "  " << (sucesso ? "[PASSOU]" : "[FALHOU]") << " : " << nomeTeste << endl;
 }
 
-int main() {
+void testes() {
     cout << "--- Iniciando Testes de Dominio ---" << endl;
 
     // ---------- Capacidade ----------
@@ -391,6 +394,57 @@ int main() {
     }
 
     cout << " --- Testes de Entidades Concluído ---- " << endl;
+
+    cout << "TESTES CONCLUÍDOS COM SUCESSO!" << endl;
+
+    double count = 0.000;
+    while (count <= 99999) {
+        count += 0.001;
+    }
+    limpa();
+}
+
+// ---- Variaveis Globais --
+Gerente gerenteLogado;
+bool logado = false;
+
+
+
+
+int main() {
+    testes(); // testes unitarios para entidades e dominios
+    header();
+
+    int acaoInicial = menuInicial();
+        
+    switch (acaoInicial) {
+        case 1: {
+            Gerente novoGerente = telaCadastro();
+        }
+        break;
+        case 2: {
+            gerenteLogado = telaLogin();
+        }
+        break;
+        default:
+            return 0;
+        break;
+    }
+
+    int acaoLogado = menuPrincipal();
+    switch (acaoLogado) {
+        case 1: {
+            cout << "gerenciar perfil" << endl;
+        }
+        break;
+        case 2: {
+            cout  << "gerenciar reservas" << endl;
+        }
+        break;
+        default:
+            return 0;
+        break;
+    }
 
     return 0;
 }
