@@ -4,9 +4,14 @@
 #include <vector>
 #include <optional>
 #include <stdexcept>
+#include <map>
 
 #include "dominios.hpp"
 #include "entidades.hpp"
+
+// Usando std::optional e std::vector para facilitar
+using std::optional;
+using std::vector;
 
 // ---- Autenticação ----
 /**
@@ -14,67 +19,53 @@
  */
 class IServicoAutenticacao {
 public:
-    // Retorna um boolean se a autenticação for bem-sucedida.
     virtual bool autenticar(const Email& email, const Senha& senha) = 0; 
-    
     virtual ~IServicoAutenticacao() = default;
 };
 
-// --- Gerente ---
-/**
- * @brief Interface de Serviço para operações de CRUD em Gerentes.
- */
-class IServicoPessoal{ 
-    public:
-        // CRUD Gerente
-        virtual bool criar(const Gerente& gerente) = 0; 
-        virtual std::optional<Gerente> ler(const Email& email) = 0; 
-        virtual bool editar(const Gerente& gerente) = 0; 
-        virtual bool excluir(const Email& email) = 0;
-        virtual std::vector<Gerente> listarGerentes() = 0;
-        
-        virtual ~IServicoGerente() = default;
-};       
-
-// --- Hóspede, Hotel, Quarto e Reserva (Consolidado em uma única interface) ---
-/**
- * @brief Interface de Serviço Única para as entidades Hospede, Hotel, Quarto e Reserva,
- */
-class IServicoReserva {
-    public:
-        // --- HÓSPEDE (CRUD e Listagem) ---
-        virtual bool cadastrarHospede(const Hospede& hospede) = 0;
-        virtual std::optional<Hospede> lerHospede(const Email& email) = 0; // Leitura pelo PK (Email)
-        virtual bool editarHospede(const Hospede& hospede) = 0;
-        virtual bool excluirHospede(const Email& email) = 0;
-        virtual std::vector<Hospede> listarHospedes() = 0;
-
-        // ---- HOTEL (CRUD e Listagem) ----
-        virtual bool criarHotel(const Hotel& hotel) = 0;
-        virtual std::optional<Hotel> lerHotel(const Codigo& codigo) = 0;
-        virtual bool editarHotel(const Hotel& hotel) = 0;
-        virtual bool excluirHotel(const Codigo& codigo) = 0;
-        virtual std::vector<Hotel> listarHoteis() = 0;
-
-        // ---- QUARTO (CRUD e Listagem) ----
-        // Criação e Edição usando a entidade Quarto completa (DTO)
-        virtual bool criarQuarto(const Quarto& quarto) = 0;
-        // Leitura pela chave composta
-        virtual std::optional<Quarto> lerQuarto(const Codigo& codHotel, const Numero& numero) = 0;
-        virtual bool editarQuarto(const Quarto& quarto) = 0;
-        // Exclusão pela chave composta
-        virtual bool excluirQuarto(const Codigo& codHotel, const Numero& numero) = 0;
-        virtual std::vector<Quarto> listarQuartos(const Codigo& codHotel) = 0;
-
-        // --- RESERVA (CRUD e Listagem) ---
-        virtual bool criarReserva(const Reserva& reserva) = 0;
-        virtual std::optional<Reserva> lerReserva(const Codigo& codReserva) = 0;
-        virtual bool editarReserva(const Reserva& reserva) = 0;
-        virtual bool excluirReserva(const Codigo& codReserva) = 0;
-        virtual std::vector<Reserva> listarReservasPorHotel(const Codigo& codHotel) = 0;
-        virtual std::vector<Reserva> listarReservasPorHospede(const Email& email) = 0;
-
-        virtual ~IServicoReserva() = default;
+// --- Hóspede ---
+class IServicoHospede {
+public:
+    virtual void cadastrar(const Nome&, const Email&, const Senha&, const Cartao&, const Endereco&) = 0;
+    virtual optional<Hospede> ler(const Email&) = 0;
+    virtual void editar(const Email&, const Nome&, const Cartao&, const Endereco&) = 0;
+    virtual void excluir(const Email&) = 0;
+    virtual vector<Hospede> listar() = 0;
+    virtual ~IServicoHospede() = default;
 };
+
+// --- Hotel ---
+class IServicoHotel {
+public:
+    virtual void criar(const Codigo&, const Nome&, const Endereco&, const Telefone&) = 0;
+    virtual optional<Hotel> ler(const Codigo&) = 0;
+    virtual void editar(const Codigo&, const Nome&, const Endereco&, const Telefone&) = 0;
+    virtual void excluir(const Codigo&) = 0;
+    virtual vector<Hotel> listar() = 0;
+    virtual ~IServicoHotel() = default;
+};
+
+// --- Quarto ---
+class IServicoQuarto {
+public:
+    virtual void criar(const Codigo&, const Numero&, const Capacidade&, const Dinheiro&, const Ramal&) = 0;
+    virtual optional<Quarto> ler(const Codigo&, const Numero&) = 0;
+    virtual void editar(const Codigo&, const Numero&, const Capacidade&, const Dinheiro&, const Ramal&) = 0;
+    virtual void excluir(const Codigo&, const Numero&) = 0;
+    virtual vector<Quarto> listar(const Codigo&) = 0;
+    virtual ~IServicoQuarto() = default;
+};
+
+// --- Reserva ---
+class IServicoReserva {
+public:
+    virtual void criar(const Codigo&, const Codigo&, const Numero&, const Email&, const Data&, const Data&, const Dinheiro&) = 0;
+    virtual optional<Reserva> ler(const Codigo&) = 0;
+    virtual void excluir(const Codigo&) = 0;
+    virtual vector<Reserva> listarPorHotel(const Codigo&) = 0;
+    virtual vector<Reserva> listarPorHospede(const Email&) = 0;
+    virtual ~IServicoReserva() = default;
+};
+
 
 #endif // INTERFACES_HPP_INCLUDED

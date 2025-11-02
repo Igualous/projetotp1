@@ -1,5 +1,7 @@
 #include "dominios.hpp"
 #include "entidades.hpp"
+#include "interfaces.hpp"
+#include "servicos_mem.hpp"
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -391,6 +393,47 @@ int main() {
     }
 
     cout << " --- Testes de Entidades Concluído ---- " << endl;
+
+    cout << "\n--- Testes de Serviços (Smoke Test) ---" << endl;
+
+    // CORREÇÃO: Usar as classes de implementação em memória
+    ServicoAutenticacaoMem servicoAuth;
+    ServicoHospedeMem      servicoHospede;
+    ServicoHotelMem        servicoHotel;
+    // ServicoPessoal e ServicoReserva não são usados neste teste.
+
+    Email emailLogin; emailLogin.setValor("ana@exemplo.com");
+    Senha senhaLogin; senhaLogin.setValor("A1a?2");
+
+    // Cadastra um usuário para o teste de autenticação
+    servicoAuth.cadastrar(emailLogin, senhaLogin); 
+    servicoAuth.autenticar(emailLogin, senhaLogin);
+
+    // --- Criar um hotel ---
+    Hotel hotelTeste;
+    Codigo codHotel; codHotel.setValor("abc123def4");
+    Nome nomeHotel; nomeHotel.setValor("Hotel Central");
+    Endereco endHotel; endHotel.setValor("Rua das Flores 123");
+    Telefone telHotel; telHotel.setValor("+55119876543201");
+
+    hotelTeste.setCodigo(codHotel);
+    hotelTeste.setNome(nomeHotel);
+    hotelTeste.setEndereco(endHotel);
+    hotelTeste.setTelefone(telHotel);
+
+    // CORREÇÃO: Usar a variável do tipo correto
+    try {
+        servicoHotel.criar(codHotel, nomeHotel, endHotel, telHotel);
+        testar("Cadastrar novo hotel", true);
+    } catch (const exception& e) {
+        testar("Cadastrar novo hotel", false);
+        cout << "    -> Msg: " << e.what() << endl;
+    }
+    
+    cout << "\nHoteis cadastrados:\n";
+    for (auto& h : servicoHotel.listar()) {
+        cout << " - " << h.getNome().getValor() << " (" << h.getCodigo().getValor() << ")\n";
+    }
 
     return 0;
 }
