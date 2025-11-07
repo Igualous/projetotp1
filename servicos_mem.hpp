@@ -26,6 +26,16 @@ public:
     void cadastrar(const Email& e, const Senha& s) { credenciais[e.getValor()] = s.getValor(); }
 };
 
+class ServicoGerenteMem : public IServicoGerente {
+    map<string, Gerente> gerentes; // chave: email
+public:
+    void criar(const Nome&, const Email&, const Senha&, const Ramal&) override;
+    optional<Gerente> ler(const Email&) override;
+    void editar(const Email&, const Nome&, const Senha&, const Ramal&) override;
+    void excluir(const Email&) override;
+    vector<Gerente> listar() override;
+};
+
 class ServicoHospedeMem : public IServicoHospede {
     map<string, Hospede> hospedes; // chave: email
 public:
@@ -71,9 +81,11 @@ class ServicoReservaMem : public IServicoReserva {
 public:
     void criar(const Codigo&, const Codigo&, const Numero&, const Email&, const Data&, const Data&, const Dinheiro&) override;
     optional<Reserva> ler(const Codigo&) override;
+    void editar(const Codigo&, const Data&, const Data&, const Dinheiro&) override;
     void excluir(const Codigo&) override;
     vector<Reserva> listarPorHotel(const Codigo&) override;
     vector<Reserva> listarPorHospede(const Email&) override;
+    vector<Reserva> listar() override;
 };
 
 #endif

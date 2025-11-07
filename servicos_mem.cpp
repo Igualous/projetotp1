@@ -14,6 +14,45 @@ bool ServicoAutenticacaoMem::autenticar(const Email& email, const Senha& senha) 
     return (it != credenciais.end() && it->second == senha.getValor());
 }
 
+// ---------- Gerente ----------
+void ServicoGerenteMem::criar(const Nome& nome, const Email& email,
+                              const Senha& senha, const Ramal& ramal) {
+    auto key = email.getValor();
+    if (gerentes.count(key)) throw std::runtime_error("Gerente j� cadastrado.");
+    Gerente g;
+    g.setNome(nome);
+    g.setEmail(email);
+    g.setSenha(senha);
+    g.setRamal(ramal);
+    gerentes[key] = g;
+}
+
+std::optional<Gerente> ServicoGerenteMem::ler(const Email& email) {
+    auto it = gerentes.find(email.getValor());
+    if (it != gerentes.end()) return it->second;
+    return std::nullopt;
+}
+
+void ServicoGerenteMem::editar(const Email& emailChave, const Nome& nome,
+                               const Senha& senha, const Ramal& ramal) {
+    auto it = gerentes.find(emailChave.getValor());
+    if (it == gerentes.end()) throw std::runtime_error("Gerente inexistente.");
+    it->second.setNome(nome);
+    it->second.setSenha(senha);
+    it->second.setRamal(ramal);
+}
+
+void ServicoGerenteMem::excluir(const Email& email) {
+    gerentes.erase(email.getValor());
+}
+
+std::vector<Gerente> ServicoGerenteMem::listar() {
+    std::vector<Gerente> v;
+    v.reserve(gerentes.size());
+    for (auto& kv : gerentes) v.push_back(kv.second);
+    return v;
+}
+
 // ---------- Hospede ----------
 void ServicoHospedeMem::cadastrar(const Nome& nome, const Email& email,
                                   const Senha& senha, const Cartao& cartao,
@@ -102,6 +141,7 @@ void ServicoQuartoMem::criar(const Codigo& codHotel, const Numero& numero,
     if (quartos.count(key)) throw std::runtime_error("Quarto já existe nesse hotel.");
     Quarto q;
     q.setNumero(numero);
+    q.setHotel(codHotel);
     q.setCapacidade(cap);
     q.setDiaria(diaria);
     q.setRamal(ramal);
@@ -178,7 +218,11 @@ void ServicoReservaMem::criar(const Codigo& codReserva, const Codigo& codHotel,
                               const Data& chegada, const Data& partida,
                               const Dinheiro& valor) {
     auto key = codReserva.getValor();
-    if (reservas.count(key)) throw std::runtime_error("Código de reserva já existe.");
+    if (reservas.count(key)) throw std::runtime_error("Codigo de reserva ja existe.");
+
+    if (toOrdinal(chegada) >= toOrdinal(partida)) {
+        throw std::runtime_error("Periodo de reserva invalido.");
+    }
 
     ChaveQuarto chaveQ{ codHotel.getValor(), numQuarto.getValor() };
 
@@ -210,6 +254,30 @@ std::optional<Reserva> ServicoReservaMem::ler(const Codigo& cod) {
     return std::nullopt;
 }
 
+void ServicoReservaMem::editar(const Codigo& cod, const Data& chegada,
+                               const Data& partida, const Dinheiro& valor) {
+    auto it = reservas.find(cod.getValor());
+    if (it == reservas.end()) throw std::runtime_error("Reserva inexistente.");
+
+    if (toOrdinal(chegada) >= toOrdinal(partida)) {
+        throw std::runtime_error("Periodo de reserva invalido.");
+    }
+
+    ChaveQuarto chaveQ{ it->second.getHotel().getValor(), it->second.getNumero().getValor() };
+    auto range = idxResPorQuarto.equal_range(chaveQ);
+    for (auto cursor = range.first; cursor != range.second; ++cursor) {
+        if (cursor->second == cod.getValor()) continue;
+        const Reserva& outra = reservas.at(cursor->second);
+        if (sobrepoe(chegada, partida, outra.getChegada(), outra.getPartida())) {
+            throw std::runtime_error("Conflito de reserva para o mesmo quarto.");
+        }
+    }
+
+    it->second.setChegada(chegada);
+    it->second.setPartida(partida);
+    it->second.setValor(valor);
+}
+
 void ServicoReservaMem::excluir(const Codigo& cod) {
     auto it = reservas.find(cod.getValor());
     if (it == reservas.end()) return;
@@ -234,6 +302,15 @@ std::vector<Reserva> ServicoReservaMem::listarPorHospede(const Email& email) {
     std::vector<Reserva> v;
     for (auto& kv : reservas) {
         if (kv.second.getHospede().getValor() == email.getValor()) v.push_back(kv.second);
+    }
+    return v;
+}
+
+std::vector<Reserva> ServicoReservaMem::listar() {
+    std::vector<Reserva> v;
+    v.reserve(reservas.size());
+    for (auto& kv : reservas) {
+        v.push_back(kv.second);
     }
     return v;
 }
