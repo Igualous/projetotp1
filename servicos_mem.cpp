@@ -4,7 +4,7 @@
 #include <cctype>
 #include <map>
 
-// ---------- Âncoras de vtable ----------
+// ---------- Ancoras de vtable ----------
 ServicoHotelMem::~ServicoHotelMem() = default;
 ServicoQuartoMem::~ServicoQuartoMem() = default;
 
@@ -18,7 +18,7 @@ bool ServicoAutenticacaoMem::autenticar(const Email& email, const Senha& senha) 
 void ServicoGerenteMem::criar(const Nome& nome, const Email& email,
                               const Senha& senha, const Ramal& ramal) {
     auto key = email.getValor();
-    if (gerentes.count(key)) throw std::runtime_error("Gerente j� cadastrado.");
+    if (gerentes.count(key)) throw std::runtime_error("Gerente ja cadastrado.");
     Gerente g;
     g.setNome(nome);
     g.setEmail(email);
@@ -53,12 +53,75 @@ std::vector<Gerente> ServicoGerenteMem::listar() {
     return v;
 }
 
+// ---------- Ligacoes entre servicos ----------
+void ServicoHospedeMem::setServicoReserva(ServicoReservaMem* srv) {
+    servicoReserva = srv;
+}
+
+bool ServicoHospedeMem::existe(const Email& email) const {
+    return hospedes.count(email.getValor()) > 0;
+}
+
+void ServicoHotelMem::setServicosRelacionados(ServicoQuartoMem* sq, ServicoReservaMem* sr) {
+    servicoQuarto = sq;
+    servicoReserva = sr;
+}
+
+bool ServicoHotelMem::existe(const Codigo& codigo) const {
+    return hoteis.count(codigo.getValor()) > 0;
+}
+
+void ServicoQuartoMem::setServicoReserva(ServicoReservaMem* sr) {
+    servicoReserva = sr;
+}
+
+bool ServicoQuartoMem::existe(const Codigo& codHotel, const Numero& numero) const {
+    ChaveQuarto key{codHotel.getValor(), numero.getValor()};
+    return quartos.count(key) > 0;
+}
+
+bool ServicoQuartoMem::possuiQuartos(const Codigo& codHotel) const {
+    for (const auto& kv : quartos) {
+        if (kv.first.first == codHotel.getValor()) return true;
+    }
+    return false;
+}
+
+void ServicoReservaMem::setServicosRelacionados(ServicoHotelMem* sh,
+                                                ServicoQuartoMem* sq,
+                                                ServicoHospedeMem* shosp) {
+    servicoHotel = sh;
+    servicoQuarto = sq;
+    servicoHospede = shosp;
+}
+
+bool ServicoReservaMem::possuiReservasParaHotel(const Codigo& codHotel) const {
+    for (const auto& kv : reservas) {
+        if (kv.second.getHotel().getValor() == codHotel.getValor()) return true;
+    }
+    return false;
+}
+
+bool ServicoReservaMem::possuiReservasParaHospede(const Email& email) const {
+    for (const auto& kv : reservas) {
+        if (kv.second.getHospede().getValor() == email.getValor()) return true;
+    }
+    return false;
+}
+
+bool ServicoReservaMem::possuiReservasParaQuarto(const Codigo& codHotel,
+                                                 const Numero& numero) const {
+    ChaveQuarto key{codHotel.getValor(), numero.getValor()};
+    auto range = idxResPorQuarto.equal_range(key);
+    return range.first != range.second;
+}
+
 // ---------- Hospede ----------
 void ServicoHospedeMem::cadastrar(const Nome& nome, const Email& email,
                                   const Senha& senha, const Cartao& cartao,
                                   const Endereco& endereco) {
     auto key = email.getValor();
-    if (hospedes.count(key)) throw std::runtime_error("Hóspede já cadastrado.");
+    if (hospedes.count(key)) throw std::runtime_error("Hospede ja cadastrado.");
     Hospede h;
     h.setNome(nome);
     h.setEmail(email);
@@ -77,13 +140,16 @@ std::optional<Hospede> ServicoHospedeMem::ler(const Email& email) {
 void ServicoHospedeMem::editar(const Email& emailChave, const Nome& nome,
                                const Cartao& cartao, const Endereco& endereco) {
     auto it = hospedes.find(emailChave.getValor());
-    if (it == hospedes.end()) throw std::runtime_error("Hóspede inexistente.");
+    if (it == hospedes.end()) throw std::runtime_error("Hospede inexistente.");
     it->second.setNome(nome);
     it->second.setCartao(cartao);
     it->second.setEndereco(endereco);
 }
 
 void ServicoHospedeMem::excluir(const Email& email) {
+    if (servicoReserva && servicoReserva->possuiReservasParaHospede(email)) {
+        throw std::runtime_error("Nao e possivel excluir hospede com reservas.");
+    }
     hospedes.erase(email.getValor());
 }
 
@@ -98,7 +164,7 @@ std::vector<Hospede> ServicoHospedeMem::listar() {
 void ServicoHotelMem::criar(const Codigo& codigo, const Nome& nome,
                             const Endereco& endereco, const Telefone& telefone) {
     auto key = codigo.getValor();
-    if (hoteis.count(key)) throw std::runtime_error("Hotel já existe.");
+    if (hoteis.count(key)) throw std::runtime_error("Hotel ja existe.");
     Hotel h;
     h.setCodigo(codigo);
     h.setNome(nome);
@@ -123,6 +189,12 @@ void ServicoHotelMem::editar(const Codigo& codigo, const Nome& nome,
 }
 
 void ServicoHotelMem::excluir(const Codigo& codigo) {
+    if (servicoQuarto && servicoQuarto->possuiQuartos(codigo)) {
+        throw std::runtime_error("Nao e possivel excluir hotel com quartos cadastrados.");
+    }
+    if (servicoReserva && servicoReserva->possuiReservasParaHotel(codigo)) {
+        throw std::runtime_error("Nao e possivel excluir hotel com reservas.");
+    }
     hoteis.erase(codigo.getValor());
 }
 
@@ -138,7 +210,7 @@ void ServicoQuartoMem::criar(const Codigo& codHotel, const Numero& numero,
                              const Capacidade& cap, const Dinheiro& diaria,
                              const Ramal& ramal) {
     ChaveQuarto key{codHotel.getValor(), numero.getValor()};
-    if (quartos.count(key)) throw std::runtime_error("Quarto já existe nesse hotel.");
+    if (quartos.count(key)) throw std::runtime_error("Quarto ja existe nesse hotel.");
     Quarto q;
     q.setNumero(numero);
     q.setHotel(codHotel);
@@ -167,6 +239,9 @@ void ServicoQuartoMem::editar(const Codigo& codHotel, const Numero& numero,
 }
 
 void ServicoQuartoMem::excluir(const Codigo& codHotel, const Numero& numero) {
+    if (servicoReserva && servicoReserva->possuiReservasParaQuarto(codHotel, numero)) {
+        throw std::runtime_error("Nao e possivel excluir quarto com reservas.");
+    }
     ChaveQuarto key{codHotel.getValor(), numero.getValor()};
     quartos.erase(key);
 }
@@ -188,7 +263,7 @@ int ServicoReservaMem::mesToNum(const std::string& mes3) {
     std::string up = mes3;
     std::transform(up.begin(), up.end(), up.begin(), ::toupper);
     auto it = M.find(up);
-    if (it == M.end()) throw std::runtime_error("Mês inválido: " + mes3);
+    if (it == M.end()) throw std::runtime_error("Mes invalido: " + mes3);
     return it->second;
 }
 
@@ -208,7 +283,7 @@ bool ServicoReservaMem::sobrepoe(const Data& c1, const Data& p1,
                                  const Data& c2, const Data& p2) {
     int a = toOrdinal(c1), b = toOrdinal(p1);
     int c = toOrdinal(c2), d = toOrdinal(p2);
-    // intervalos [a,b) e [c,d) sobrepõem se:
+    // intervalos [a,b) e [c,d) sobrepoem se:
     return (a < d) && (c < b);
 }
 
@@ -219,6 +294,16 @@ void ServicoReservaMem::criar(const Codigo& codReserva, const Codigo& codHotel,
                               const Dinheiro& valor) {
     auto key = codReserva.getValor();
     if (reservas.count(key)) throw std::runtime_error("Codigo de reserva ja existe.");
+
+    if (!servicoHotel || !servicoHotel->existe(codHotel)) {
+        throw std::runtime_error("Hotel inexistente.");
+    }
+    if (!servicoQuarto || !servicoQuarto->existe(codHotel, numQuarto)) {
+        throw std::runtime_error("Quarto inexistente.");
+    }
+    if (!servicoHospede || !servicoHospede->existe(emailHospede)) {
+        throw std::runtime_error("Hospede inexistente.");
+    }
 
     if (toOrdinal(chegada) >= toOrdinal(partida)) {
         throw std::runtime_error("Periodo de reserva invalido.");
@@ -282,7 +367,7 @@ void ServicoReservaMem::excluir(const Codigo& cod) {
     auto it = reservas.find(cod.getValor());
     if (it == reservas.end()) return;
     ChaveQuarto cq{ it->second.getHotel().getValor(), it->second.getNumero().getValor() };
-    // remove do índice
+    // remove do indice
     for (auto rng = idxResPorQuarto.equal_range(cq); rng.first != rng.second; ) {
         if (rng.first->second == cod.getValor()) rng.first = idxResPorQuarto.erase(rng.first);
         else ++rng.first;
