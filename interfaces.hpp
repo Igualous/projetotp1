@@ -20,6 +20,7 @@ using std::vector;
 class IServicoAutenticacao {
 public:
     virtual bool autenticar(const Email& email, const Senha& senha) = 0;
+    virtual void cadastrar(const Email& email, const Senha& senha) = 0;
     virtual ~IServicoAutenticacao() = default;
 };
 

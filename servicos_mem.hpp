@@ -27,8 +27,9 @@ class ServicoAutenticacaoMem : public IServicoAutenticacao {
     map<string, string> credenciais;
 public:
     bool autenticar(const Email& email, const Senha& senha) override;
-    // helper para testes
-    void cadastrar(const Email& e, const Senha& s) { credenciais[e.getValor()] = s.getValor(); }
+    void cadastrar(const Email& e, const Senha& s) override {
+        credenciais[e.getValor()] = s.getValor();
+    }
 };
 
 class ServicoGerenteMem : public IServicoGerente {
