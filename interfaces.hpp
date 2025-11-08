@@ -49,11 +49,12 @@ public:
 // --- Hotel ---
 class IServicoHotel {
 public:
-    virtual void criar(const Codigo&, const Nome&, const Endereco&, const Telefone&) = 0;
+    virtual void criar(const Codigo&, const Nome&, const Endereco&, const Telefone&, const Email&) = 0;
     virtual optional<Hotel> ler(const Codigo&) = 0;
     virtual void editar(const Codigo&, const Nome&, const Endereco&, const Telefone&) = 0;
     virtual void excluir(const Codigo&) = 0;
     virtual vector<Hotel> listar() = 0;
+    virtual vector<Hotel> listarPorGerente(const Email&) = 0;
     virtual ~IServicoHotel() = default;
 };
 

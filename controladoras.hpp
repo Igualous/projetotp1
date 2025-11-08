@@ -64,12 +64,12 @@ public:
      * @brief Executa o fluxo de apresentação para cadastrar um novo hotel.
      * (Corresponde ao item "3 - CRIAR HOTEL" do diagrama).
      */
-    void executarCadastroHotel();
+    void executarCadastroHotel(const Email& emailGerente);
 
     /**
      * @brief Lista os hotéis cadastrados.
      */
-    void executarListarHoteis();
+    void executarListarHoteis(const Email& emailGerente);
 };
 
 

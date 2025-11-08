@@ -89,11 +89,10 @@ void executarMenuGerente(CtrlApresentacaoHotel* ctrlHotel,
                 ctrlGerente->executarPerfil(emailGerente);
                 break;
             case 2:
-                ctrlHotel->executarListarHoteis();
+                ctrlHotel->executarListarHoteis(emailGerente);
                 break;
             case 3:
-                // Chama a controladora que acabamos de implementar
-                ctrlHotel->executarCadastroHotel();
+                ctrlHotel->executarCadastroHotel(emailGerente);
                 break;
             case 4:
                 cout << "Retornando ao menu principal..." << endl;

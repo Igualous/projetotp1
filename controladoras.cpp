@@ -95,14 +95,19 @@ CtrlApresentacaoHotel::CtrlApresentacaoHotel(IServicoHotel* servico) {
     this->servicoHotel = servico;
 }
 
-void CtrlApresentacaoHotel::executarCadastroHotel() {
-    string nomeStr, emailStr, codStr, endStr, telStr;
+void CtrlApresentacaoHotel::executarCadastroHotel(const Email& emailGerente) {
+    string nomeStr, codStr, endStr, telStr;
     
     cout << "\n--- Tela de Cadastro de Hotel ---" << endl;
-    cout << "Codigo (10 chars, ex: hotel12345): "; cin >> codStr;
-    cout << "Nome (Ex: Hotel Central): ";          cin >> nomeStr;
-    cout << "Endereco (Ex: Rua 1): ";             cin >> endStr;
-    cout << "Telefone (Ex: +12345678901234): ";    cin >> telStr;
+    cout << "Codigo (10 chars, ex: hotel12345): ";
+    cin >> codStr;
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    cout << "Nome (Ex: Hotel Central): ";
+    getline(cin, nomeStr);
+    cout << "Endereco (Ex: Rua 1): ";
+    getline(cin, endStr);
+    cout << "Telefone (Ex: +12345678901234): ";
+    getline(cin, telStr);
 
     try {
         // 1. Validação de Formato (Domínios)
@@ -112,7 +117,7 @@ void CtrlApresentacaoHotel::executarCadastroHotel() {
         Telefone tel;  tel.setValor(telStr);
 
         // 2. Chamada de Serviço (Lógica de Negócio)
-        servicoHotel->criar(codigo, nome, end, tel);
+        servicoHotel->criar(codigo, nome, end, tel, emailGerente);
         
         cout << "Hotel cadastrado com sucesso!" << endl;
 
@@ -124,12 +129,12 @@ void CtrlApresentacaoHotel::executarCadastroHotel() {
     }
 }
 
-void CtrlApresentacaoHotel::executarListarHoteis() {
-    cout << "\n--- Listagem de Hoteis ---" << endl;
+void CtrlApresentacaoHotel::executarListarHoteis(const Email& emailGerente) {
+    cout << "\n--- Meus Hoteis ---" << endl;
     try {
-        auto lista = servicoHotel->listar();
+        auto lista = servicoHotel->listarPorGerente(emailGerente);
         if (lista.empty()) {
-            cout << "Nenhum hotel cadastrado." << endl;
+            cout << "Voce ainda nao possui hoteis cadastrados." << endl;
             return;
         }
 
@@ -160,7 +165,9 @@ void CtrlApresentacaoGerente::executarCadastro() {
     int ramalInt;
 
     cout << "\n--- Tela de Cadastro de Gerente ---" << endl;
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    if (cin.rdbuf()->in_avail() > 0) {
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
     cout << "Nome (Ex: Ana Souza): ";
     getline(cin, nomeStr);
     cout << "Email (ex: ana@hotel.com): ";

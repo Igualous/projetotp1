@@ -83,7 +83,7 @@ int main() {
     std::cout << "Hospede cadastrado? " << (h ? "sim" : "nao") << "\n";
 
     // --------- Hotel & Quarto ----------
-    sHotel.criar(codHotel, nomeHotel, endHotel, tel);
+    sHotel.criar(codHotel, nomeHotel, endHotel, tel, email);
     sQuarto.criar(codHotel, num, cap, diaria, ram);
 
     // --------- Reserva OK ----------
@@ -124,7 +124,7 @@ int main() {
 
 // 3) criar hotel duplicado (deve falhar)
 try {
-    sHotel.criar(codHotel, nomeHotel, endHotel, tel);
+    sHotel.criar(codHotel, nomeHotel, endHotel, tel, email);
     std::cout << "ERRO: hotel duplicado passou!\n";
 } catch (const std::exception& e) {
     std::cout << "Hotel duplicado bloqueado: " << e.what() << "\n";
