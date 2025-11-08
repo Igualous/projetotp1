@@ -19,8 +19,19 @@ using std::vector;
  */
 class IServicoAutenticacao {
 public:
-    virtual bool autenticar(const Email& email, const Senha& senha) = 0; 
+    virtual bool autenticar(const Email& email, const Senha& senha) = 0;
     virtual ~IServicoAutenticacao() = default;
+};
+
+// ---- Conta do Gerente ----
+class IServicoGerente {
+public:
+    virtual void criar(const Nome&, const Email&, const Senha&, const Ramal&) = 0;
+    virtual optional<Gerente> ler(const Email&) = 0;
+    virtual void editar(const Email&, const Nome&, const Senha&, const Ramal&) = 0;
+    virtual void excluir(const Email&) = 0;
+    virtual vector<Gerente> listar() = 0;
+    virtual ~IServicoGerente() = default;
 };
 
 // --- Hóspede ---
@@ -61,9 +72,11 @@ class IServicoReserva {
 public:
     virtual void criar(const Codigo&, const Codigo&, const Numero&, const Email&, const Data&, const Data&, const Dinheiro&) = 0;
     virtual optional<Reserva> ler(const Codigo&) = 0;
+    virtual void editar(const Codigo&, const Data&, const Data&, const Dinheiro&) = 0;
     virtual void excluir(const Codigo&) = 0;
     virtual vector<Reserva> listarPorHotel(const Codigo&) = 0;
     virtual vector<Reserva> listarPorHospede(const Email&) = 0;
+    virtual vector<Reserva> listar() = 0;
     virtual ~IServicoReserva() = default;
 };
 

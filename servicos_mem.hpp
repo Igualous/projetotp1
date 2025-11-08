@@ -9,6 +9,11 @@
 #include "interfaces.hpp"
 #include "entidades.hpp"
 
+class ServicoReservaMem;
+class ServicoQuartoMem;
+class ServicoHospedeMem;
+class ServicoHotelMem;
+
 // Usando std::
 using std::optional;
 using std::vector;
@@ -26,9 +31,22 @@ public:
     void cadastrar(const Email& e, const Senha& s) { credenciais[e.getValor()] = s.getValor(); }
 };
 
+class ServicoGerenteMem : public IServicoGerente {
+    map<string, Gerente> gerentes; // chave: email
+public:
+    void criar(const Nome&, const Email&, const Senha&, const Ramal&) override;
+    optional<Gerente> ler(const Email&) override;
+    void editar(const Email&, const Nome&, const Senha&, const Ramal&) override;
+    void excluir(const Email&) override;
+    vector<Gerente> listar() override;
+};
+
 class ServicoHospedeMem : public IServicoHospede {
     map<string, Hospede> hospedes; // chave: email
+    ServicoReservaMem* servicoReserva = nullptr;
 public:
+    void setServicoReserva(ServicoReservaMem*);
+    bool existe(const Email&) const;
     void cadastrar(const Nome&, const Email&, const Senha&, const Cartao&, const Endereco&) override;
     optional<Hospede> ler(const Email&) override;
     void editar(const Email&, const Nome&, const Cartao&, const Endereco&) override;
@@ -38,8 +56,12 @@ public:
 
 class ServicoHotelMem : public IServicoHotel {
     map<string, Hotel> hoteis; // chave: codigo
+    ServicoQuartoMem* servicoQuarto = nullptr;
+    ServicoReservaMem* servicoReserva = nullptr;
 public:
-    ~ServicoHotelMem() override; // âncora de vtable
+    ~ServicoHotelMem() override; // ncora de vtable
+    void setServicosRelacionados(ServicoQuartoMem*, ServicoReservaMem*);
+    bool existe(const Codigo&) const;
     void criar(const Codigo&, const Nome&, const Endereco&, const Telefone&) override;
     optional<Hotel> ler(const Codigo&) override;
     void editar(const Codigo&, const Nome&, const Endereco&, const Telefone&) override;
@@ -50,8 +72,12 @@ public:
 class ServicoQuartoMem : public IServicoQuarto {
     using ChaveQuarto = pair<string,int>; // (codHotel, numero)
     map<ChaveQuarto, Quarto> quartos;
+    ServicoReservaMem* servicoReserva = nullptr;
 public:
-    ~ServicoQuartoMem() override; // âncora de vtable
+    ~ServicoQuartoMem() override; // ncora de vtable
+    void setServicoReserva(ServicoReservaMem*);
+    bool existe(const Codigo&, const Numero&) const;
+    bool possuiQuartos(const Codigo&) const;
     void criar(const Codigo&, const Numero&, const Capacidade&, const Dinheiro&, const Ramal&) override;
     optional<Quarto> ler(const Codigo&, const Numero&) override;
     void editar(const Codigo&, const Numero&, const Capacidade&, const Dinheiro&, const Ramal&) override;
@@ -63,17 +89,26 @@ class ServicoReservaMem : public IServicoReserva {
     using ChaveQuarto = pair<string,int>;
     map<string, Reserva> reservas;                 // chave: codReserva
     multimap<ChaveQuarto, string> idxResPorQuarto; // (hotel,numero) -> codReserva
+    ServicoHotelMem* servicoHotel = nullptr;
+    ServicoQuartoMem* servicoQuarto = nullptr;
+    ServicoHospedeMem* servicoHospede = nullptr;
 
     // helpers de data
     static int mesToNum(const string& mes3); // "JAN" -> 1
     static int toOrdinal(const Data& d);          // yyyymmdd
     static bool sobrepoe(const Data& c1, const Data& p1, const Data& c2, const Data& p2);
 public:
+    void setServicosRelacionados(ServicoHotelMem*, ServicoQuartoMem*, ServicoHospedeMem*);
+    bool possuiReservasParaHotel(const Codigo&) const;
+    bool possuiReservasParaHospede(const Email&) const;
+    bool possuiReservasParaQuarto(const Codigo&, const Numero&) const;
     void criar(const Codigo&, const Codigo&, const Numero&, const Email&, const Data&, const Data&, const Dinheiro&) override;
     optional<Reserva> ler(const Codigo&) override;
+    void editar(const Codigo&, const Data&, const Data&, const Dinheiro&) override;
     void excluir(const Codigo&) override;
     vector<Reserva> listarPorHotel(const Codigo&) override;
     vector<Reserva> listarPorHospede(const Email&) override;
+    vector<Reserva> listar() override;
 };
 
 #endif

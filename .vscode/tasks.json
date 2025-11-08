@@ -1,28 +1,44 @@
 {
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "label": "Compilar Projeto C++ (g++)",
-            "type": "shell",
-            "command": "/usr/bin/g++",
-            "args": [
-                "-fdiagnostics-color=always",
-                "-g",
-                
-                "${workspaceFolder}/main.cpp",
-                "${workspaceFolder}/dominios.cpp",
-                "${workspaceFolder}/entidades.cpp",
-                
-                "-o",
-                "${workspaceFolder}/projetotp1"
-            ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "problemMatcher": [
-                "$gcc"
-            ]
-        }
-    ]
+  "version": "2.0.0",
+  "tasks": [
+    {
+        "label": "build cli",
+        "type": "shell",
+        "command": "C:/Program Files/CodeBlocks/MinGW/bin/g++.exe",
+        "args": [
+            "-Wall",
+            "-Wextra",
+            "-g3",
+            "cli.cpp",
+            "dominios.cpp",
+            "entidades.cpp",
+            "servicos_mem.cpp",
+            "-o",
+            "output/cli.exe"
+        ],
+        "group": {
+            "kind": "build",
+            "isDefault": true
+        },
+        "problemMatcher": "$gcc"
+    },
+    {
+        "label": "build main",
+        "type": "shell",
+        "command": "C:/Program Files/CodeBlocks/MinGW/bin/g++.exe",
+        "args": [
+            "-Wall",
+            "-Wextra",
+            "-g3",
+            "main.cpp",
+            "dominios.cpp",
+            "entidades.cpp",
+            "servicos_mem.cpp",
+            "-o",
+            "output/main.exe"
+        ],
+        "group": "build",
+        "problemMatcher": "$gcc"
+    }
+]
 }
