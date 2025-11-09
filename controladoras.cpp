@@ -2,6 +2,8 @@
 #include <iostream>
 #include <string>
 #include <stdexcept> 
+#include <limits>
+#include <cctype>
 
 using namespace std;
 
@@ -12,7 +14,7 @@ CtrlApresentacaoAutenticacao::CtrlApresentacaoAutenticacao(IServicoAutenticacao*
     this->servicoAuth = servico;
 }
 
-bool CtrlApresentacaoAutenticacao::executar() {
+bool CtrlApresentacaoAutenticacao::executar(Email& emailAutenticado) {
     string emailStr, senhaStr;
 
     cout << "\n--- Tela de Login ---" << endl;
@@ -31,6 +33,7 @@ bool CtrlApresentacaoAutenticacao::executar() {
 
         // 2. Chamada de Serviço (Lógica de Negócio)
         if (servicoAuth->autenticar(email, senha)) {
+            emailAutenticado = email;
             return true; 
         } else {
             cout << "Erro: Email ou senha incorretos." << endl;
@@ -92,14 +95,19 @@ CtrlApresentacaoHotel::CtrlApresentacaoHotel(IServicoHotel* servico) {
     this->servicoHotel = servico;
 }
 
-void CtrlApresentacaoHotel::executarCadastroHotel() {
-    string nomeStr, emailStr, codStr, endStr, telStr;
+void CtrlApresentacaoHotel::executarCadastroHotel(const Email& emailGerente) {
+    string nomeStr, codStr, endStr, telStr;
     
     cout << "\n--- Tela de Cadastro de Hotel ---" << endl;
-    cout << "Codigo (10 chars, ex: hotel12345): "; cin >> codStr;
-    cout << "Nome (Ex: Hotel Central): ";          cin >> nomeStr;
-    cout << "Endereco (Ex: Rua 1): ";             cin >> endStr;
-    cout << "Telefone (Ex: +12345678901234): ";    cin >> telStr;
+    cout << "Codigo (10 chars, ex: hotel12345): ";
+    cin >> codStr;
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    cout << "Nome (Ex: Hotel Central): ";
+    getline(cin, nomeStr);
+    cout << "Endereco (Ex: Rua 1): ";
+    getline(cin, endStr);
+    cout << "Telefone (Ex: +12345678901234): ";
+    getline(cin, telStr);
 
     try {
         // 1. Validação de Formato (Domínios)
@@ -109,13 +117,127 @@ void CtrlApresentacaoHotel::executarCadastroHotel() {
         Telefone tel;  tel.setValor(telStr);
 
         // 2. Chamada de Serviço (Lógica de Negócio)
-        servicoHotel->criar(codigo, nome, end, tel);
+        servicoHotel->criar(codigo, nome, end, tel, emailGerente);
         
         cout << "Hotel cadastrado com sucesso!" << endl;
 
     } catch (const invalid_argument& e) {
         cout << "Erro de formato nos dados: " << e.what() << endl;
     
+    } catch (const runtime_error& e) {
+        cout << "Erro de negocio: " << e.what() << endl;
+    }
+}
+
+void CtrlApresentacaoHotel::executarListarHoteis(const Email& emailGerente) {
+    cout << "\n--- Meus Hoteis ---" << endl;
+    try {
+        auto lista = servicoHotel->listarPorGerente(emailGerente);
+        if (lista.empty()) {
+            cout << "Voce ainda nao possui hoteis cadastrados." << endl;
+            return;
+        }
+
+        for (const auto& hotel : lista) {
+            cout << "Codigo: " << hotel.getCodigo().getValor()
+                 << " | Nome: " << hotel.getNome().getValor()
+                 << " | Endereco: " << hotel.getEndereco().getValor()
+                 << " | Telefone: " << hotel.getTelefone().getValor()
+                 << endl;
+        }
+    } catch (const runtime_error& e) {
+        cout << "Erro ao listar hoteis: " << e.what() << endl;
+    }
+}
+
+//-----------------------------------------------//
+// Implementação de CtrlApresentacaoGerente      //
+//-----------------------------------------------//
+
+CtrlApresentacaoGerente::CtrlApresentacaoGerente(IServicoGerente* servicoGerente,
+                                                 IServicoAutenticacao* servicoAuth) {
+    this->servicoGerente = servicoGerente;
+    this->servicoAuth = servicoAuth;
+}
+
+void CtrlApresentacaoGerente::executarCadastro() {
+    string nomeStr, emailStr, senhaStr;
+    int ramalInt;
+
+    cout << "\n--- Tela de Cadastro de Gerente ---" << endl;
+    if (cin.rdbuf()->in_avail() > 0) {
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+    cout << "Nome (Ex: Ana Souza): ";
+    getline(cin, nomeStr);
+    cout << "Email (ex: ana@hotel.com): ";
+    getline(cin, emailStr);
+    cout << "Senha (Ex: A1b$2): ";
+    getline(cin, senhaStr);
+    cout << "Ramal (valor inteiro): ";          cin >> ramalInt;
+
+    try {
+        Nome nome;     nome.setValor(nomeStr);
+        Email email;   email.setValor(emailStr);
+        Senha senha;   senha.setValor(senhaStr);
+        Ramal ramal;   ramal.setValor(ramalInt);
+
+        servicoGerente->criar(nome, email, senha, ramal);
+        servicoAuth->cadastrar(email, senha);
+
+        cout << "Gerente cadastrado com sucesso!" << endl;
+
+    } catch (const invalid_argument& e) {
+        cout << "Erro de formato nos dados: " << e.what() << endl;
+    } catch (const runtime_error& e) {
+        cout << "Erro de negocio: " << e.what() << endl;
+    }
+}
+
+void CtrlApresentacaoGerente::executarPerfil(const Email& emailGerente) {
+    cout << "\n--- Meu Perfil ---" << endl;
+    auto gerenteOpt = servicoGerente->ler(emailGerente);
+    if (!gerenteOpt) {
+        cout << "Nao foi possivel carregar os dados do gerente." << endl;
+        return;
+    }
+
+    const Gerente& gerente = *gerenteOpt;
+    cout << "Nome: " << gerente.getNome().getValor() << endl;
+    cout << "Email: " << gerente.getEmail().getValor() << endl;
+    cout << "Ramal: " << gerente.getRamal().getValor() << endl;
+
+    cout << "\nDeseja atualizar o perfil? (s/n): ";
+    char resposta;
+    cin >> resposta;
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+    if (std::tolower(static_cast<unsigned char>(resposta)) != 's') {
+        return;
+    }
+
+    string novoNome, novaSenha;
+    int novoRamal;
+
+    cout << "Novo nome (Ex: Ana Souza): ";
+    getline(cin, novoNome);
+    cout << "Nova senha (Ex: A1b$2): ";
+    getline(cin, novaSenha);
+    cout << "Novo ramal (valor inteiro): ";
+    cin >> novoRamal;
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+    try {
+        Nome nome;   nome.setValor(novoNome);
+        Senha senha; senha.setValor(novaSenha);
+        Ramal ramal; ramal.setValor(novoRamal);
+
+        servicoGerente->editar(emailGerente, nome, senha, ramal);
+        servicoAuth->cadastrar(emailGerente, senha);
+
+        cout << "Perfil atualizado com sucesso!" << endl;
+    } catch (const invalid_argument& e) {
+        cout << "Erro de formato nos dados: " << e.what() << endl;
     } catch (const runtime_error& e) {
         cout << "Erro de negocio: " << e.what() << endl;
     }

@@ -27,8 +27,9 @@ class ServicoAutenticacaoMem : public IServicoAutenticacao {
     map<string, string> credenciais;
 public:
     bool autenticar(const Email& email, const Senha& senha) override;
-    // helper para testes
-    void cadastrar(const Email& e, const Senha& s) { credenciais[e.getValor()] = s.getValor(); }
+    void cadastrar(const Email& e, const Senha& s) override {
+        credenciais[e.getValor()] = s.getValor();
+    }
 };
 
 class ServicoGerenteMem : public IServicoGerente {
@@ -56,17 +57,19 @@ public:
 
 class ServicoHotelMem : public IServicoHotel {
     map<string, Hotel> hoteis; // chave: codigo
+    map<string, string> proprietarios; // codigo -> email do gerente
     ServicoQuartoMem* servicoQuarto = nullptr;
     ServicoReservaMem* servicoReserva = nullptr;
 public:
     ~ServicoHotelMem() override; // ncora de vtable
     void setServicosRelacionados(ServicoQuartoMem*, ServicoReservaMem*);
     bool existe(const Codigo&) const;
-    void criar(const Codigo&, const Nome&, const Endereco&, const Telefone&) override;
+    void criar(const Codigo&, const Nome&, const Endereco&, const Telefone&, const Email&) override;
     optional<Hotel> ler(const Codigo&) override;
     void editar(const Codigo&, const Nome&, const Endereco&, const Telefone&) override;
     void excluir(const Codigo&) override;
     vector<Hotel> listar() override;
+    vector<Hotel> listarPorGerente(const Email&) override;
 };
 
 class ServicoQuartoMem : public IServicoQuarto {

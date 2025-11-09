@@ -162,7 +162,8 @@ std::vector<Hospede> ServicoHospedeMem::listar() {
 
 // ---------- Hotel ----------
 void ServicoHotelMem::criar(const Codigo& codigo, const Nome& nome,
-                            const Endereco& endereco, const Telefone& telefone) {
+                            const Endereco& endereco, const Telefone& telefone,
+                            const Email& emailGerente) {
     auto key = codigo.getValor();
     if (hoteis.count(key)) throw std::runtime_error("Hotel ja existe.");
     Hotel h;
@@ -171,6 +172,7 @@ void ServicoHotelMem::criar(const Codigo& codigo, const Nome& nome,
     h.setEndereco(endereco);
     h.setTelefone(telefone);
     hoteis[key] = h;
+    proprietarios[key] = emailGerente.getValor();
 }
 
 std::optional<Hotel> ServicoHotelMem::ler(const Codigo& codigo) {
@@ -195,13 +197,29 @@ void ServicoHotelMem::excluir(const Codigo& codigo) {
     if (servicoReserva && servicoReserva->possuiReservasParaHotel(codigo)) {
         throw std::runtime_error("Nao e possivel excluir hotel com reservas.");
     }
-    hoteis.erase(codigo.getValor());
+    auto key = codigo.getValor();
+    hoteis.erase(key);
+    proprietarios.erase(key);
 }
 
 std::vector<Hotel> ServicoHotelMem::listar() {
     std::vector<Hotel> v;
     v.reserve(hoteis.size());
     for (auto& kv : hoteis) v.push_back(kv.second);
+    return v;
+}
+
+std::vector<Hotel> ServicoHotelMem::listarPorGerente(const Email& email) {
+    std::vector<Hotel> v;
+    auto alvo = email.getValor();
+    for (const auto& kv : proprietarios) {
+        if (kv.second == alvo) {
+            auto it = hoteis.find(kv.first);
+            if (it != hoteis.end()) {
+                v.push_back(it->second);
+            }
+        }
+    }
     return v;
 }
 

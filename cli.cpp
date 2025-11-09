@@ -1,15 +1,19 @@
 #include <iostream>
 #include <stdexcept>
+#include <limits>
 #include "interfaces.hpp"
 #include "servicos_mem.hpp"     
 #include "controladoras.hpp"
 
 using namespace std;
 
-void executarMenuGerente(CtrlApresentacaoHotel* ctrlHotel);
+void executarMenuGerente(CtrlApresentacaoHotel* ctrlHotel,
+                         CtrlApresentacaoGerente* ctrlGerente,
+                         const Email& emailGerente);
 
 int main() {
     ServicoAutenticacaoMem sAuth;
+    ServicoGerenteMem      sGerente;
     ServicoHospedeMem      sHosp;
     ServicoHotelMem        sHotel;
     ServicoQuartoMem       sQuarto;
@@ -23,6 +27,7 @@ int main() {
     CtrlApresentacaoAutenticacao ctrlAuth(&sAuth);
     CtrlApresentacaoHospede ctrlHosp(&sHosp);
     CtrlApresentacaoHotel ctrlHotel(&sHotel);
+    CtrlApresentacaoGerente ctrlGerente(&sGerente, &sAuth);
 
     cout << "Bem-vindo ao Sistema de Gestao de Hoteis!" << endl;
     
@@ -30,22 +35,30 @@ int main() {
         cout << "\nMenu Principal:" << endl;
         cout << "1. Login" << endl;
         cout << "2. Cadastrar-se como Hospede" << endl;
-        cout << "3. Sair" << endl;
+        cout << "3. Cadastrar-se como Gerente" << endl;
+        cout << "4. Sair" << endl;
         cout << "Escolha uma opcao: ";
 
         int opcao;
         cin >> opcao;
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
         switch (opcao) {
-            case 1:
-                if (ctrlAuth.executar()) { 
+            case 1: {
+                Email emailAutenticado;
+                if (ctrlAuth.executar(emailAutenticado)) {
                     cout << "Login bem-sucedido!" << endl;
+                    executarMenuGerente(&ctrlHotel, &ctrlGerente, emailAutenticado);
                 }
                 break;
+            }
             case 2:
                 ctrlHosp.executarCadastro(); 
                 break;
             case 3:
+                ctrlGerente.executarCadastro();
+                break;
+            case 4:
                 cout << "Saindo... Obrigado!" << endl;
                 return 0; 
             default:
@@ -56,7 +69,9 @@ int main() {
     return 0;
 }
 
-void executarMenuGerente(CtrlApresentacaoHotel* ctrlHotel) {
+void executarMenuGerente(CtrlApresentacaoHotel* ctrlHotel,
+                         CtrlApresentacaoGerente* ctrlGerente,
+                         const Email& emailGerente) {
     while (true) {
         cout << "\n--- Menu do Gerente ---" << endl;
         cout << "1. Meu Perfil" << endl;
@@ -67,19 +82,17 @@ void executarMenuGerente(CtrlApresentacaoHotel* ctrlHotel) {
 
         int opcao;
         cin >> opcao;
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
         
         switch (opcao) {
             case 1:
-                cout << "Fluxo 'Meu Perfil' ainda nao implementado." << endl;
-                // Aqui você chamaria: ctrlGerente->executarPerfil();
+                ctrlGerente->executarPerfil(emailGerente);
                 break;
             case 2:
-                cout << "Fluxo 'Meus Hoteis' ainda nao implementado." << endl;
-                // Aqui você chamaria: ctrlHotel->executarListagem();
+                ctrlHotel->executarListarHoteis(emailGerente);
                 break;
             case 3:
-                // Chama a controladora que acabamos de implementar
-                ctrlHotel->executarCadastroHotel();
+                ctrlHotel->executarCadastroHotel(emailGerente);
                 break;
             case 4:
                 cout << "Retornando ao menu principal..." << endl;
@@ -90,3 +103,7 @@ void executarMenuGerente(CtrlApresentacaoHotel* ctrlHotel) {
         }
     }
 }
+
+
+
+

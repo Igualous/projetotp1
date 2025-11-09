@@ -423,7 +423,7 @@ int main() {
 
     // CORREÇÃO: Usar a variável do tipo correto
     try {
-        servicoHotel.criar(codHotel, nomeHotel, endHotel, telHotel);
+        servicoHotel.criar(codHotel, nomeHotel, endHotel, telHotel, emailLogin);
         testar("Cadastrar novo hotel", true);
     } catch (const exception& e) {
         testar("Cadastrar novo hotel", false);

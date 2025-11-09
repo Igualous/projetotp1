@@ -20,7 +20,7 @@ public:
      * @brief Executa o fluxo de apresentação para autenticar um usuário.
      * @return true se o login for bem-sucedido, false caso contrário.
      */
-    bool executar();
+    bool executar(Email& emailAutenticado);
 };
 
 
@@ -64,9 +64,35 @@ public:
      * @brief Executa o fluxo de apresentação para cadastrar um novo hotel.
      * (Corresponde ao item "3 - CRIAR HOTEL" do diagrama).
      */
-    void executarCadastroHotel();
+    void executarCadastroHotel(const Email& emailGerente);
 
-    // Aqui poderiam entrar outros métodos (ex: executarListarHoteis)
+    /**
+     * @brief Lista os hotéis cadastrados.
+     */
+    void executarListarHoteis(const Email& emailGerente);
+};
+
+
+/**
+ * @brief Controladora da Camada de Apresentacao para Gerente.
+ */
+class CtrlApresentacaoGerente {
+private:
+    IServicoGerente* servicoGerente;
+    IServicoAutenticacao* servicoAuth;
+public:
+    CtrlApresentacaoGerente(IServicoGerente* servicoGerente,
+                            IServicoAutenticacao* servicoAuth);
+    
+    /**
+     * @brief Executa o fluxo de apresentacao para cadastrar um novo gerente.
+     */
+    void executarCadastro();
+
+    /**
+     * @brief Exibe e permite editar o perfil do gerente autenticado.
+     */
+    void executarPerfil(const Email& emailGerente);
 };
 
 #endif // CONTROLADORAS_HPP_INCLUDED
