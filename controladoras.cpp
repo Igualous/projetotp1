@@ -138,13 +138,21 @@ void CtrlApresentacaoHotel::executarListarHoteis(const Email& emailGerente) {
             return;
         }
 
+        int index = 0;
         for (const auto& hotel : lista) {
-            cout << "Codigo: " << hotel.getCodigo().getValor()
+            cout << "[" << index << "] " 
+                 <<  "Codigo: " << hotel.getCodigo().getValor()
                  << " | Nome: " << hotel.getNome().getValor()
                  << " | Endereco: " << hotel.getEndereco().getValor()
                  << " | Telefone: " << hotel.getTelefone().getValor()
                  << endl;
+            index++;
         }
+
+        cout << "\n\nSelecione o indice do hotel que deseja visualizar: ";
+        int opcao;
+        cin >> opcao;
+
     } catch (const runtime_error& e) {
         cout << "Erro ao listar hoteis: " << e.what() << endl;
     }
