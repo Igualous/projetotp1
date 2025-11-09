@@ -207,38 +207,56 @@ void CtrlApresentacaoGerente::executarPerfil(const Email& emailGerente) {
     cout << "Email: " << gerente.getEmail().getValor() << endl;
     cout << "Ramal: " << gerente.getRamal().getValor() << endl;
 
-    cout << "\nDeseja atualizar o perfil? (s/n): ";
-    char resposta;
+    cout << "\n1 - Editar Perfil";
+    cout << "\n2 - Remover Perfil";
+    cout << "\n\nEscolha o que desejar fazer: ";
+
+    int resposta;
     cin >> resposta;
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    
+    if (resposta == 1) {
+    
+        string novoNome, novaSenha;
+        int novoRamal;
+    
+        cout << "Novo nome (Ex: Ana Souza): ";
+        getline(cin, novoNome);
+        cout << "Nova senha (Ex: A1b$2): ";
+        getline(cin, novaSenha);
+        cout << "Novo ramal (valor inteiro): ";
+        cin >> novoRamal;
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    
+        try {
+            Nome nome;   nome.setValor(novoNome);
+            Senha senha; senha.setValor(novaSenha);
+            Ramal ramal; ramal.setValor(novoRamal);
+    
+            servicoGerente->editar(emailGerente, nome, senha, ramal);
+            servicoAuth->cadastrar(emailGerente, senha);
+    
+            cout << "Perfil atualizado com sucesso!" << endl;
+        } catch (const invalid_argument& e) {
+            cout << "Erro de formato nos dados: " << e.what() << endl;
+        } catch (const runtime_error& e) {
+            cout << "Erro de negocio: " << e.what() << endl;
+        }
+    } else if (resposta == 2) {
+        while (true) {
+            cout << "Tem certeza que deseja excluir perfil? (S/N): ";
+            
+            char opcao;
+            cin >> opcao;
 
-    if (std::tolower(static_cast<unsigned char>(resposta)) != 's') {
-        return;
+            if (opcao == 'S' || opcao == 's') {
+                servicoGerente->excluir(emailGerente);
+                cout << "Perfil excluido com sucesso!";
+                break;
+            } else if (opcao == 'N' || opcao == 'n') {
+                break;
+            }
+        }
     }
 
-    string novoNome, novaSenha;
-    int novoRamal;
-
-    cout << "Novo nome (Ex: Ana Souza): ";
-    getline(cin, novoNome);
-    cout << "Nova senha (Ex: A1b$2): ";
-    getline(cin, novaSenha);
-    cout << "Novo ramal (valor inteiro): ";
-    cin >> novoRamal;
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-
-    try {
-        Nome nome;   nome.setValor(novoNome);
-        Senha senha; senha.setValor(novaSenha);
-        Ramal ramal; ramal.setValor(novoRamal);
-
-        servicoGerente->editar(emailGerente, nome, senha, ramal);
-        servicoAuth->cadastrar(emailGerente, senha);
-
-        cout << "Perfil atualizado com sucesso!" << endl;
-    } catch (const invalid_argument& e) {
-        cout << "Erro de formato nos dados: " << e.what() << endl;
-    } catch (const runtime_error& e) {
-        cout << "Erro de negocio: " << e.what() << endl;
-    }
 }

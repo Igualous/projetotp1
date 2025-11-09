@@ -7,6 +7,22 @@
 
 using namespace std;
 
+void limpa() {
+    #ifdef _WIN32
+        // Comando para limpar o terminal no Windows
+        std::system("cls");
+    #else
+        // Comando para limpar o terminal em sistemas Unix-like (Linux, macOS, etc.)
+        std::system("clear");
+    #endif
+}
+
+void espera() {
+    double cont = 0;
+    while (cont < 99999) {
+        cont += 0.001;
+    }
+}
 void executarMenuGerente(CtrlApresentacaoHotel* ctrlHotel,
                          CtrlApresentacaoGerente* ctrlGerente,
                          const Email& emailGerente);
@@ -42,12 +58,14 @@ int main() {
         int opcao;
         cin >> opcao;
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        limpa();
 
         switch (opcao) {
             case 1: {
                 Email emailAutenticado;
                 if (ctrlAuth.executar(emailAutenticado)) {
                     cout << "Login bem-sucedido!" << endl;
+                    espera();
                     executarMenuGerente(&ctrlHotel, &ctrlGerente, emailAutenticado);
                 }
                 break;
@@ -60,6 +78,8 @@ int main() {
                 break;
             case 4:
                 cout << "Saindo... Obrigado!" << endl;
+                espera();
+
                 return 0; 
             default:
                 cout << "Opcao invalida. Tente novamente." << endl;
