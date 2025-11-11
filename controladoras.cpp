@@ -91,8 +91,9 @@ void CtrlApresentacaoHospede::executarCadastro() {
 // Implementação de CtrlApresentacaoHotel        //
 //-----------------------------------------------//
 
-CtrlApresentacaoHotel::CtrlApresentacaoHotel(IServicoHotel* servico) {
+CtrlApresentacaoHotel::CtrlApresentacaoHotel(IServicoHotel* servico, CtrlApresentacaoQuarto* ctrlQuarto) {
     this->servicoHotel = servico;
+    this->ctrlQuarto = ctrlQuarto;
 }
 
 void CtrlApresentacaoHotel::executarCadastroHotel(const Email& emailGerente) {
@@ -179,6 +180,7 @@ void CtrlApresentacaoHotel::executarListarHoteis(const Email& emailGerente) {
         cout << "\n1 - Editar hotel" << endl;
         cout << "2 - Excluir hotel" << endl;
         cout << "3 - Gerenciar quartos" << endl;
+        cout << "4 - Criar quartos" << endl;
         cout << "\nO que deseja fazer?: ";
         
         int opcaoGerencia;
@@ -193,8 +195,18 @@ void CtrlApresentacaoHotel::executarListarHoteis(const Email& emailGerente) {
                 executarExcluirHotel(codigoHotelEscolhido);
             break;
             case 3:
-                cout << "gerenciar quartos escolhido (ainda nao implementado)" << endl;
+            if (ctrlQuarto) {
+                ctrlQuarto->executarListarQuartos(codigoHotelEscolhido);
+            } else {
+                cout << "Erro: dependencia CtrlApresentacaoQuarto nula." << endl;
+            }
             break;
+            case 4:
+            if (ctrlQuarto) {
+                ctrlQuarto->executarCadastroQuarto(codigoHotelEscolhido);
+            } else {
+                cout << "Erro: dependencia CtrlApresentacaoQuarto nula." << endl;                
+            }
             default:
                 cout << "opcao invalida" << endl;
         }
@@ -403,4 +415,231 @@ void CtrlApresentacaoGerente::executarPerfil(const Email& emailGerente) {
         }
     }
 
+}
+
+//-----------------------------------------------//
+// Implementação de CtrlApresentacaoQuarto       //
+//-----------------------------------------------//
+
+CtrlApresentacaoQuarto::CtrlApresentacaoQuarto(IServicoQuarto* servico) {
+    this->servicoQuarto = servico;
+}
+
+void CtrlApresentacaoQuarto::executarCadastroQuarto(const string& codigoHotel) {
+    int numero, capacidade, diaria, ramal;
+    
+    cout << "\n--- Tela de Cadastro de Quarto ---" << endl;
+    
+    // Leitura dos dados como INT, usando cin >>
+    cout << "Numero do quarto: ";
+    cin >> numero;
+    cout << "Capacidade do quarto: ";
+    cin >> capacidade;
+    cout << "Diaria (em centavos): ";
+    cin >> diaria;
+    cout << "Ramal: ";
+    cin >> ramal;
+    cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Limpar o buffer após a última leitura
+
+    try {
+        // 1. Validação de Formato (Domínios)
+        Codigo codigoHotelDom;          codigoHotelDom.setValor(codigoHotel);
+        Numero numeroDom;               numeroDom.setValor(numero);
+        Capacidade capacidadeDom;       capacidadeDom.setValor(capacidade);
+        Dinheiro diariaDom;             diariaDom.setValor(diaria);
+        Ramal ramalDom;                 ramalDom.setValor(ramal);
+        
+        // 2. Chamada de Serviço (Lógica de Negócio)
+        servicoQuarto->criar(codigoHotelDom, numeroDom, capacidadeDom, diariaDom, ramalDom);
+        
+        cout << "Quarto cadastrado com sucesso!" << endl;
+
+    } catch (const invalid_argument& e) {
+        cout << "Erro de formato nos dados: " << e.what() << endl;
+    
+    } catch (const runtime_error& e) {
+        cout << "Erro de negocio: " << e.what() << endl;
+    }
+}
+
+void CtrlApresentacaoQuarto::executarListarQuartos(const string& codigoHotel) {
+    cout << "\n--- Meus Quartos ---" << endl;
+
+    // validacao de parametro
+    Codigo codigoHotelDom;
+    try {
+        codigoHotelDom.setValor(codigoHotel);
+    } catch(const std::invalid_argument& e) {
+        cout << "Codigo de hotel inválido" << endl;
+    } 
+
+    try {
+        auto lista = servicoQuarto->listar(codigoHotelDom);
+        if (lista.empty()) {
+            cout << "Voce ainda nao possui quartos cadastrados." << endl;
+            return;
+        }
+
+        int index = 0;
+        for (const auto& quarto : lista) {
+            cout << "[" << index << "] " 
+                 <<  "Numero:: " << quarto.getNumero().getValor()
+                 << " | Capacidade: " << quarto.getCapacidade().getValor()
+                 << " | Diaria: " << quarto.getDiaria().getValor()
+                 << " | Ramal: " << quarto.getRamal().getValor()
+                 << endl;
+            index++;
+        }
+
+        cout << "\n1 - Gerenciar quartos" << endl;
+        cout << "2 - Voltar" << endl;
+
+        int opcaoAcao;
+        cin >> opcaoAcao;
+        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Limpar buffer
+        
+        if (opcaoAcao != 1) {
+            return;
+        }
+
+        cout << "\n\nSelecione o indice do quarto que deseja gerenciar: ";
+        int indexEscolhido;
+        cin >> indexEscolhido;
+        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Limpar buffer
+        
+        if (indexEscolhido < 0 || indexEscolhido >= lista.size()) {
+            cout << "indice invalido. Voltando..." << endl;
+            return;
+        }
+        const Quarto& QuartoEscolhido = lista.at(indexEscolhido);
+        int numeroQuartoEscolhido = QuartoEscolhido.getNumero().getValor();
+        
+        cout << "Quarto selecionado: " << numeroQuartoEscolhido << endl;
+
+
+        cout << "\n1 - Editar quarto" << endl;
+        cout << "2 - Excluir quarto" << endl;
+        cout << "3 - Gerenciar reservas" << endl;
+        cout << "\nO que deseja fazer?: ";
+        
+        int opcaoGerencia;
+        cin >>  opcaoGerencia;
+        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Limpar buffer 
+
+        switch (opcaoGerencia) {
+            case 1:
+                executarEditarQuarto(codigoHotel, numeroQuartoEscolhido); 
+            break;
+            case 2:
+                executarExcluirQuarto(codigoHotel, numeroQuartoEscolhido);
+            break;
+            case 3:
+                cout << "gerenciar reserva escolhida (ainda nao implementado)" << endl;
+            break;
+            default:
+                cout << "opcao invalida" << endl;
+        }
+
+    } catch (const runtime_error& e) {
+        cout << "Erro ao listar quartos: " << e.what() << endl;
+    }
+}
+
+// **ASSINATURA CORRIGIDA**: O segundo parâmetro deve ser string, assim como na chamada de listar
+void CtrlApresentacaoQuarto::executarEditarQuarto(const string& codigoHotel, const int& numeroQuarto) { 
+    cout << "\n--- Tela de Edição de Quarto (" << numeroQuarto << ") ---" << endl;
+
+    // 1. Validação de parâmetro (chaves)
+    Numero numeroDom;
+    Codigo codigoDom;
+    try {
+        codigoDom.setValor(codigoHotel);
+        numeroDom.setValor(numeroQuarto); // Converte string para int para validar o Domínio
+    } catch (const std::invalid_argument& e) {
+        cout << "Erro: Código/Número de quarto inválido: " << e.what() << endl;
+        return;
+    }
+
+    // 2. Encontra o quarto atual
+    std::optional<Quarto> quartoAtualOpt;
+    try {
+        quartoAtualOpt = servicoQuarto->ler(codigoDom, numeroDom);
+    } catch (const std::runtime_error& e) {
+        cout << "Erro ao buscar quarto: " << e.what() << endl;
+        return;
+    }
+    
+    if (!quartoAtualOpt) {
+        cout << "Erro de negócio: Quarto com número " << numeroQuarto<< " não encontrado." << endl;
+        return;
+    }
+    const Quarto& quartoAtual = *quartoAtualOpt; // Hotel atual é o Quarto atual
+
+    int capacidade, diaria, ramal;
+    
+    cout << "Digite a NOVA CAPACIDADE (atual: "<< quartoAtual.getCapacidade().getValor() << "): ";
+    cin >> capacidade;
+    cout << "Digite a NOVA DIÁRIA (atual: " << quartoAtual.getDiaria().getValor() << "): ";
+    cin >> diaria;
+    
+    // CORRIGIDO: Acessando getRamal() de Quarto, não de Hotel
+    cout << "Digite o NOVO RAMAL (atual: " << quartoAtual.getRamal().getValor() << "): "; 
+    cin >> ramal;
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+    try {
+        // 3. Validação de Formato dos novos dados
+        Capacidade capacidadeDom;   capacidadeDom.setValor(capacidade); 
+        Dinheiro diariaDom;         diariaDom.setValor(diaria);
+        Ramal ramalDom;             ramalDom.setValor(ramal); // CORRIGIDO: Atribuição correta
+        
+        // 4. Chamada de Servico
+        servicoQuarto->editar(codigoDom, numeroDom, capacidadeDom, diariaDom, ramalDom);
+        
+        cout << "\nQuarto editado com sucesso! " << endl;
+
+    } catch (const invalid_argument& e) {
+        cout << "Erro de formato nos dados: " << e.what() << endl;
+    
+    } catch (const runtime_error& e) {
+        cout << "Erro de negócio: " << e.what() << endl;
+    }
+}
+
+// **ASSINATURA CORRIGIDA**: O segundo parâmetro deve ser string
+void CtrlApresentacaoQuarto::executarExcluirQuarto(const string& codigoHotel, const int& numeroQuarto) {
+    cout << "\n--- Tela de Exclusão de Quarto (" << numeroQuarto << ") ---" << endl;
+    
+    cout << "A exclusão de um quarto irá excluir todas reservas vinculadas a ele." << endl;
+    cout << "Confirma a exclusão do quarto com número " << numeroQuarto << "? (s/n): ";
+    
+    char resposta;
+    cin >> resposta;
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+    if (std::tolower(static_cast<unsigned char>(resposta)) != 's') {
+        cout << "Exclusão cancelada." << endl;
+        return;
+    }
+
+    try {
+        // 1. Validação de Formato
+        // Converte string para int para validar o Domínio
+        Numero numero;
+        numero.setValor(numeroQuarto); 
+
+        Codigo codigo;
+        codigo.setValor(codigoHotel);
+        
+        // 2. Chamada de Serviço
+        servicoQuarto->excluir(codigo, numero);
+        
+        cout << "\nQuarto excluído com sucesso! Adeus! 👋" << endl;
+
+    } catch (const invalid_argument& e) {
+        cout << "Erro de formato no código: " << e.what() << endl;
+    
+    } catch (const runtime_error& e) {
+        cout << "Erro de negócio: " << e.what() << endl;
+    }
 }

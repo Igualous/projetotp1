@@ -6,6 +6,8 @@
 
 using namespace std;
 
+class CtrlApresentacaoQuarto;
+
 /**
  * @brief Controladora da Camada de Apresentação para Autenticação.
  */
@@ -57,15 +59,15 @@ public:
 class CtrlApresentacaoHotel {
 private:
     IServicoHotel* servicoHotel; // Ponteiro para o "cardápio" de hotel
+    CtrlApresentacaoQuarto* ctrlQuarto;
 public:
     /**
      * @brief Construtor que injeta o serviço de hotel.
      */
-    CtrlApresentacaoHotel(IServicoHotel* servico);
+    CtrlApresentacaoHotel(IServicoHotel* servico, CtrlApresentacaoQuarto* ctrlQuarto);
 
     /**
      * @brief Executa o fluxo de apresentação para cadastrar um novo hotel.
-     * (Corresponde ao item "3 - CRIAR HOTEL" do diagrama).
      */
     void executarCadastroHotel(const Email& emailGerente);
 
@@ -106,6 +108,41 @@ public:
      * @brief Exibe e permite editar o perfil do gerente autenticado.
      */
     void executarPerfil(const Email& emailGerente);
+};
+
+/**
+ * @brief Controladora da Camada de Apresentacao para Gerente.
+ */
+class CtrlApresentacaoQuarto {
+private:
+    IServicoQuarto* servicoQuarto;
+public:
+    CtrlApresentacaoQuarto(IServicoQuarto* servicoQuarto);
+
+    /**
+     * @brief Executa o fluxo de apresentacao para gerenciar os quartos.
+     */
+    void executar(const string& codigoHotel);
+
+    /**
+     * @brief Executa o fluxo de apresentacao para cadastrar um novo Quarto.
+     */
+    void executarCadastroQuarto(const string& codigoHotel);
+
+    /**
+     * @brief Lista os quartos cadastrados.
+     */
+    void executarListarQuartos(const string& codigoHotel);
+
+    /**
+     * @brief Exibe e permite editar o quarto  selecionado 
+     */
+    void executarEditarQuarto(const string& codigoHotel, const int& numeroQuarto);
+
+    /**
+     * @brief Permite excluir o quarto  selecionado 
+     */
+    void executarExcluirQuarto(const string& codigoHotel, const int& numeroQuarto);
 };
 
 #endif // CONTROLADORAS_HPP_INCLUDED

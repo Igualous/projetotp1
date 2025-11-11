@@ -42,7 +42,8 @@ int main() {
 
     CtrlApresentacaoAutenticacao ctrlAuth(&sAuth);
     CtrlApresentacaoHospede ctrlHosp(&sHosp);
-    CtrlApresentacaoHotel ctrlHotel(&sHotel);
+    CtrlApresentacaoQuarto ctrlQuarto(&sQuarto);
+    CtrlApresentacaoHotel ctrlHotel(&sHotel, &ctrlQuarto);
     CtrlApresentacaoGerente ctrlGerente(&sGerente, &sAuth);
 
     cout << "Bem-vindo ao Sistema de Gestao de Hoteis!" << endl;
