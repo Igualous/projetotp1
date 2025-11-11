@@ -2,6 +2,9 @@
 #define CONTROLADORAS_HPP_INCLUDED
 
 #include "interfaces.hpp"
+#include <string>
+
+using namespace std;
 
 /**
  * @brief Controladora da Camada de Apresentação para Autenticação.
@@ -70,6 +73,16 @@ public:
      * @brief Lista os hotéis cadastrados.
      */
     void executarListarHoteis(const Email& emailGerente);
+
+    /**
+     * @brief Edita o hotél escolhido.
+     */
+    void executarEditarHotel(const string& codigoHotel);
+
+    /**
+    * @brief Excluir o hotél escolhido.
+    */
+    void executarExcluirHotel(const string& codigoHotel);
 };
 
 

@@ -138,15 +138,159 @@ void CtrlApresentacaoHotel::executarListarHoteis(const Email& emailGerente) {
             return;
         }
 
+        int index = 0;
         for (const auto& hotel : lista) {
-            cout << "Codigo: " << hotel.getCodigo().getValor()
+            cout << "[" << index << "] " 
+                 <<  "Codigo: " << hotel.getCodigo().getValor()
                  << " | Nome: " << hotel.getNome().getValor()
                  << " | Endereco: " << hotel.getEndereco().getValor()
                  << " | Telefone: " << hotel.getTelefone().getValor()
                  << endl;
+            index++;
         }
+
+        cout << "\n1 - Gerenciar hoteis" << endl;
+        cout << "2 - Voltar" << endl;
+
+        int opcaoAcao;
+        cin >> opcaoAcao;
+        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Limpar buffer
+        
+        if (opcaoAcao != 1) {
+            return;
+        }
+
+        cout << "\n\nSelecione o indice do hotel que deseja gerenciar: ";
+        int indexEscolhido;
+        cin >> indexEscolhido;
+        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Limpar buffer
+        
+        if (indexEscolhido < 0 || indexEscolhido >= lista.size()) {
+            cout << "indice invalido. Voltando..." << endl;
+            return;
+        }
+        const Hotel& hotelEscolhido = lista.at(indexEscolhido);
+        string codigoHotelEscolhido = hotelEscolhido.getCodigo().getValor();
+        string nomeHotelEscolhido = hotelEscolhido.getNome().getValor();
+        
+        cout << "Hotel selecionado: " << nomeHotelEscolhido << endl;
+
+
+        cout << "\n1 - Editar hotel" << endl;
+        cout << "2 - Excluir hotel" << endl;
+        cout << "3 - Gerenciar quartos" << endl;
+        cout << "\nO que deseja fazer?: ";
+        
+        int opcaoGerencia;
+        cin >>  opcaoGerencia;
+        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Limpar buffer 
+
+        switch (opcaoGerencia) {
+            case 1:
+                executarEditarHotel(codigoHotelEscolhido); 
+            break;
+            case 2:
+                executarExcluirHotel(codigoHotelEscolhido);
+            break;
+            case 3:
+                cout << "gerenciar quartos escolhido (ainda nao implementado)" << endl;
+            break;
+            default:
+                cout << "opcao invalida" << endl;
+        }
+
     } catch (const runtime_error& e) {
         cout << "Erro ao listar hoteis: " << e.what() << endl;
+    }
+}
+
+void CtrlApresentacaoHotel::executarEditarHotel(const string& codigoHotel) {
+    cout << "\n--- Tela de Edição de Hotel (" << codigoHotel << ") ---" << endl;
+
+    // 1. validacao de parametro
+    Codigo codigo;
+    try {
+        codigo.setValor(codigoHotel);
+    } catch (const std::invalid_argument& e) {
+        cout << "Erro: Código do hotel inválido: " << e.what() << endl;
+        return;
+    }
+
+    // 2. encontra o hotel pelo codigo
+    std::optional<Hotel> hotelAtualOpt;
+    try {
+        hotelAtualOpt = servicoHotel->ler(codigo);
+    } catch (const std::runtime_error& e) {
+        cout << "Erro ao buscar hotel: " << e.what() << endl;
+        return;
+    }
+    
+    // 3. Verificar se o hotel existe
+    if (!hotelAtualOpt) {
+        cout << "Erro de negócio: Hotel com código " << codigoHotel << " não encontrado." << endl;
+        return;
+    }
+    const Hotel& hotelAtual = *hotelAtualOpt;
+
+    string nomeStr, endStr, telStr;
+    
+    cout << "Digite o NOVO NOME (atual: "<< hotelAtual.getNome().getValor() << "): ";
+    getline(cin, nomeStr);
+    cout << "Digite o NOVO ENDEREÇO (atual: " << hotelAtual.getEndereco().getValor() << "): ";
+    getline(cin, endStr);
+    cout << "Digite o NOVO TELEFONE (atual: " << hotelAtual.getTelefone().getValor() << "): ";
+    getline(cin, telStr);
+
+    try {
+        // 1. Validação de Formato
+        Codigo codigo;   codigo.setValor(codigoHotel); // Usamos o código existente
+        Nome nome;       nome.setValor(nomeStr);
+        Endereco end;    end.setValor(endStr);
+        Telefone tel;    tel.setValor(telStr);
+
+        // 2. Chamada de Servico
+        servicoHotel->editar(codigo, nome, end, tel);
+        
+        cout << "\nHotel editado com sucesso!" << endl;
+
+    } catch (const invalid_argument& e) {
+        cout << "Erro de formato nos dados: " << e.what() << endl;
+    
+    } catch (const runtime_error& e) {
+        cout << "Erro de negócio: " << e.what() << endl;
+    }
+}
+
+void CtrlApresentacaoHotel::executarExcluirHotel(const string& codigoHotel) {
+    cout << "\n--- Tela de Exclusão de Hotel (" << codigoHotel << ") ---" << endl;
+    
+    cout << "A exclusão de um hotel ira quartos e reservas vinculadas." << endl;
+    cout << "Confirma a exclusão do hotel com código " << codigoHotel << "? (s/n): ";
+    
+    char resposta;
+    cin >> resposta;
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+    if (std::tolower(static_cast<unsigned char>(resposta)) != 's') {
+        cout << "Exclusão cancelada." << endl;
+        return;
+    }
+
+    try {
+        // 1. Validação de Formato
+        Codigo codigo;
+        codigo.setValor(codigoHotel); 
+        
+        // 2. Chamada de Serviço
+        servicoHotel->excluir(codigo);
+        
+        cout << "\nHotel excluído com sucesso!" << endl;
+
+    } catch (const invalid_argument& e) {
+        cout << "Erro de formato no código: " << e.what() << endl;
+    
+    } catch (const runtime_error& e) {
+        cout << "Erro de negócio: " << e.what() << endl;
     }
 }
 
