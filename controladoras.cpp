@@ -4,51 +4,106 @@
 #include <stdexcept> 
 #include <limits>
 #include <cctype>
+#include <sstream>
 
 using namespace std;
 
+namespace {
+
+string lerLinha(const string& prompt) {
+    cout << prompt;
+    string valor;
+    getline(cin, valor);
+    return valor;
+}
+
+template<typename DomainType>
+DomainType lerDominioString(const string& prompt) {
+    DomainType dominio;
+    while (true) {
+        string entrada = lerLinha(prompt);
+        try {
+            dominio.setValor(entrada);
+            return dominio;
+        } catch (const invalid_argument& e) {
+            cout << "Entrada invalida: " << e.what() << ". Tente novamente." << endl;
+        }
+    }
+}
+
+template<typename DomainType>
+DomainType lerDominioInt(const string& prompt) {
+    DomainType dominio;
+    while (true) {
+        string entrada = lerLinha(prompt);
+        try {
+            size_t pos = 0;
+            int valor = stoi(entrada, &pos);
+            if (pos != entrada.size()) {
+                throw invalid_argument("Informe apenas numeros inteiros.");
+            }
+            dominio.setValor(valor);
+            return dominio;
+        } catch (const invalid_argument& e) {
+            cout << "Entrada invalida: " << e.what() << ". Tente novamente." << endl;
+        } catch (const out_of_range&) {
+            cout << "Entrada invalida: numero fora do intervalo permitido. Tente novamente." << endl;
+        }
+    }
+}
+
+Data lerDataFormato(const string& prompt) {
+    while (true) {
+        string linha = lerLinha(prompt);
+        if (linha.empty()) {
+            cout << "Entrada invalida: use o formato 'DD MES AAAA'." << endl;
+            continue;
+        }
+        istringstream iss(linha);
+        int dia = 0;
+        int ano = 0;
+        string mes;
+        if (!(iss >> dia >> mes >> ano)) {
+            cout << "Entrada invalida: use o formato 'DD MES AAAA' (ex: 05 JAN 2026)." << endl;
+            continue;
+        }
+        try {
+            Data data;
+            data.setValor(dia, mes, ano);
+            return data;
+        } catch (const invalid_argument& e) {
+            cout << "Data invalida: " << e.what() << ". Tente novamente." << endl;
+        }
+    }
+}
+
+} // namespace
+
 //-----------------------------------------------//
-// Implementação de CtrlApresentacaoAutenticacao //
+// Implementacao de CtrlApresentacaoAutenticacao //
 //-----------------------------------------------//
 CtrlApresentacaoAutenticacao::CtrlApresentacaoAutenticacao(IServicoAutenticacao* servico) {
     this->servicoAuth = servico;
 }
 
 bool CtrlApresentacaoAutenticacao::executar(Email& emailAutenticado) {
-    string emailStr, senhaStr;
-
     cout << "\n--- Tela de Login ---" << endl;
-    cout << "Digite seu email: ";
-    cin >> emailStr;
-    cout << "Digite sua senha: ";
-    cin >> senhaStr;
 
-    Email email;
-    Senha senha;
+    Email email = lerDominioString<Email>("Digite seu email: ");
+    Senha senha = lerDominioString<Senha>("\nDigite sua senha: ");
 
-    try {
-        // 1. Validação de formato (Domínios)
-        email.setValor(emailStr);
-        senha.setValor(senhaStr);
-
-        // 2. Chamada de Serviço (Lógica de Negócio)
-        if (servicoAuth->autenticar(email, senha)) {
-            emailAutenticado = email;
-            return true; 
-        } else {
-            cout << "Erro: Email ou senha incorretos." << endl;
-            return false;
-        }
-
-    } catch (const invalid_argument& e) {
-        cout << "Erro de formato nos dados: " << e.what() << endl;
-        return false;
+    if (servicoAuth->autenticar(email, senha)) {
+        emailAutenticado = email;
+        return true;
     }
+
+    cout << "Erro: Email ou senha incorretos." << endl;
+    return false;
 }
 
 
 //------------------------------------------//
-// Implementação de CtrlApresentacaoHospede //
+// Implementacao de CtrlApresentacaoHospede //
 //------------------------------------------//
 
 CtrlApresentacaoHospede::CtrlApresentacaoHospede(IServicoHospede* servico) {
@@ -56,39 +111,27 @@ CtrlApresentacaoHospede::CtrlApresentacaoHospede(IServicoHospede* servico) {
 }
 
 void CtrlApresentacaoHospede::executarCadastro() {
-    string nomeStr, emailStr, senhaStr, cartaoStr, endStr;
-    
     cout << "\n--- Tela de Cadastro de Hospede ---" << endl;
-    cout << "Nome (Ex: Joao Silva): ";     cin >> nomeStr;
-    cout << "Email (ex: joao@email.com): "; cin >> emailStr;
-    cout << "Senha (Ex: A1b$2): ";          cin >> senhaStr;
-    cout << "Cartao (16 digitos): ";        cin >> cartaoStr;
-    cout << "Endereco (Ex: Rua 1): ";       cin >> endStr;
+
+    Nome nome       = lerDominioString<Nome>("Nome (Ex: Joao Silva): ");
+    Email email     = lerDominioString<Email>("Email (ex: joao@email.com): ");
+    Senha senha     = lerDominioString<Senha>("Senha (Ex: A1b$2): ");
+    Cartao cartao   = lerDominioString<Cartao>("Cartao (16 digitos): ");
+    Endereco end    = lerDominioString<Endereco>("Endereco (Ex: Rua 1): ");
 
     try {
-        // 1. Validação de Formato (Domínios)
-        Nome nome;      nome.setValor(nomeStr);
-        Email email;    email.setValor(emailStr);
-        Senha senha;    senha.setValor(senhaStr);
-        Cartao cartao;  cartao.setValor(cartaoStr);
-        Endereco end;   end.setValor(endStr);
-
-        // 2. Chamada de Serviço (Lógica de Negócio)
         servicoHospede->cadastrar(nome, email, senha, cartao, end);
-        
         cout << "Cadastro realizado com sucesso!" << endl;
 
-    } catch (const invalid_argument& e) {
-        cout << "Erro de formato nos dados: " << e.what() << endl;
-    
     } catch (const runtime_error& e) {
         cout << "Erro de negocio: " << e.what() << endl;
     }
 }
 
 
+
 //-----------------------------------------------//
-// Implementação de CtrlApresentacaoHotel        //
+// Implementacao de CtrlApresentacaoHotel        //
 //-----------------------------------------------//
 
 CtrlApresentacaoHotel::CtrlApresentacaoHotel(IServicoHotel* servico, CtrlApresentacaoQuarto* ctrlQuarto) {
@@ -97,38 +140,22 @@ CtrlApresentacaoHotel::CtrlApresentacaoHotel(IServicoHotel* servico, CtrlApresen
 }
 
 void CtrlApresentacaoHotel::executarCadastroHotel(const Email& emailGerente) {
-    string nomeStr, codStr, endStr, telStr;
-    
     cout << "\n--- Tela de Cadastro de Hotel ---" << endl;
-    cout << "Codigo (10 chars, ex: hotel12345): ";
-    cin >> codStr;
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    cout << "Nome (Ex: Hotel Central): ";
-    getline(cin, nomeStr);
-    cout << "Endereco (Ex: Rua 1): ";
-    getline(cin, endStr);
-    cout << "Telefone (Ex: +12345678901234): ";
-    getline(cin, telStr);
+
+    Codigo codigo = lerDominioString<Codigo>("Codigo (10 chars, ex: hotel12345): ");
+    Nome nome     = lerDominioString<Nome>("Nome (Ex: Hotel Central): ");
+    Endereco end  = lerDominioString<Endereco>("Endereco (Ex: Rua 1): ");
+    Telefone tel  = lerDominioString<Telefone>("Telefone (Ex: +12345678901234): ");
 
     try {
-        // 1. Validação de Formato (Domínios)
-        Codigo codigo;   codigo.setValor(codStr);
-        Nome nome;     nome.setValor(nomeStr);
-        Endereco end;  end.setValor(endStr);
-        Telefone tel;  tel.setValor(telStr);
-
-        // 2. Chamada de Serviço (Lógica de Negócio)
         servicoHotel->criar(codigo, nome, end, tel, emailGerente);
-        
         cout << "Hotel cadastrado com sucesso!" << endl;
 
-    } catch (const invalid_argument& e) {
-        cout << "Erro de formato nos dados: " << e.what() << endl;
-    
     } catch (const runtime_error& e) {
         cout << "Erro de negocio: " << e.what() << endl;
     }
 }
+
 
 void CtrlApresentacaoHotel::executarListarHoteis(const Email& emailGerente) {
     cout << "\n--- Meus Hoteis ---" << endl;
@@ -166,7 +193,8 @@ void CtrlApresentacaoHotel::executarListarHoteis(const Email& emailGerente) {
         cin >> indexEscolhido;
         cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Limpar buffer
         
-        if (indexEscolhido < 0 || indexEscolhido >= lista.size()) {
+        const int totalHoteis = static_cast<int>(lista.size());
+        if (indexEscolhido < 0 || indexEscolhido >= totalHoteis) {
             cout << "indice invalido. Voltando..." << endl;
             return;
         }
@@ -207,6 +235,7 @@ void CtrlApresentacaoHotel::executarListarHoteis(const Email& emailGerente) {
             } else {
                 cout << "Erro: dependencia CtrlApresentacaoQuarto nula." << endl;                
             }
+            break;
             default:
                 cout << "opcao invalida" << endl;
         }
@@ -217,97 +246,93 @@ void CtrlApresentacaoHotel::executarListarHoteis(const Email& emailGerente) {
 }
 
 void CtrlApresentacaoHotel::executarEditarHotel(const string& codigoHotel) {
-    cout << "\n--- Tela de Edição de Hotel (" << codigoHotel << ") ---" << endl;
+    cout << "\n--- Tela de Edicao de Hotel (" << codigoHotel << ") ---" << endl;
 
-    // 1. validacao de parametro
     Codigo codigo;
     try {
         codigo.setValor(codigoHotel);
-    } catch (const std::invalid_argument& e) {
-        cout << "Erro: Código do hotel inválido: " << e.what() << endl;
+    } catch (const invalid_argument& e) {
+        cout << "Erro: Codigo do hotel invalido: " << e.what() << endl;
         return;
     }
 
-    // 2. encontra o hotel pelo codigo
-    std::optional<Hotel> hotelAtualOpt;
+    optional<Hotel> hotelAtualOpt;
     try {
         hotelAtualOpt = servicoHotel->ler(codigo);
-    } catch (const std::runtime_error& e) {
+    } catch (const runtime_error& e) {
         cout << "Erro ao buscar hotel: " << e.what() << endl;
         return;
     }
-    
-    // 3. Verificar se o hotel existe
+
     if (!hotelAtualOpt) {
-        cout << "Erro de negócio: Hotel com código " << codigoHotel << " não encontrado." << endl;
+        cout << "Erro de negocio: Hotel com codigo " << codigoHotel << " nao encontrado." << endl;
         return;
     }
     const Hotel& hotelAtual = *hotelAtualOpt;
 
-    string nomeStr, endStr, telStr;
-    
-    cout << "Digite o NOVO NOME (atual: "<< hotelAtual.getNome().getValor() << "): ";
-    getline(cin, nomeStr);
-    cout << "Digite o NOVO ENDEREÇO (atual: " << hotelAtual.getEndereco().getValor() << "): ";
-    getline(cin, endStr);
-    cout << "Digite o NOVO TELEFONE (atual: " << hotelAtual.getTelefone().getValor() << "): ";
-    getline(cin, telStr);
+    string promptNome = "Digite o NOVO NOME (atual: ";
+    promptNome += hotelAtual.getNome().getValor();
+    promptNome += "): ";
+
+    string promptEnd  = "Digite o NOVO ENDERECO (atual: ";
+    promptEnd += hotelAtual.getEndereco().getValor();
+    promptEnd += "): ";
+
+    string promptTel  = "Digite o NOVO TELEFONE (atual: ";
+    promptTel += hotelAtual.getTelefone().getValor();
+    promptTel += "): ";
+
+    Nome nome       = lerDominioString<Nome>(promptNome);
+    Endereco end    = lerDominioString<Endereco>(promptEnd);
+    Telefone tel    = lerDominioString<Telefone>(promptTel);
 
     try {
-        // 1. Validação de Formato
-        Codigo codigo;   codigo.setValor(codigoHotel); // Usamos o código existente
-        Nome nome;       nome.setValor(nomeStr);
-        Endereco end;    end.setValor(endStr);
-        Telefone tel;    tel.setValor(telStr);
-
-        // 2. Chamada de Servico
         servicoHotel->editar(codigo, nome, end, tel);
-        
         cout << "\nHotel editado com sucesso!" << endl;
 
-    } catch (const invalid_argument& e) {
-        cout << "Erro de formato nos dados: " << e.what() << endl;
-    
     } catch (const runtime_error& e) {
-        cout << "Erro de negócio: " << e.what() << endl;
+        cout << "Erro de negocio: " << e.what() << endl;
     }
 }
 
+
+
+
 void CtrlApresentacaoHotel::executarExcluirHotel(const string& codigoHotel) {
-    cout << "\n--- Tela de Exclusão de Hotel (" << codigoHotel << ") ---" << endl;
+    cout << "\n--- Tela de Exclusao de Hotel (" << codigoHotel << ") ---" << endl;
     
-    cout << "A exclusão de um hotel ira quartos e reservas vinculadas." << endl;
-    cout << "Confirma a exclusão do hotel com código " << codigoHotel << "? (s/n): ";
+    cout << "A exclusao de um hotel ira quartos e reservas vinculadas." << endl;
+    cout << "Confirma a exclusao do hotel com codigo " << codigoHotel << "? (s/n): ";
     
     char resposta;
     cin >> resposta;
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
     if (std::tolower(static_cast<unsigned char>(resposta)) != 's') {
-        cout << "Exclusão cancelada." << endl;
+        cout << "Exclusao cancelada." << endl;
         return;
     }
 
     try {
-        // 1. Validação de Formato
+        // 1. Validacao de Formato
         Codigo codigo;
         codigo.setValor(codigoHotel); 
         
-        // 2. Chamada de Serviço
+        // 2. Chamada de Servico
         servicoHotel->excluir(codigo);
         
-        cout << "\nHotel excluído com sucesso!" << endl;
+        cout << "\nHotel excluAdo com sucesso!" << endl;
 
     } catch (const invalid_argument& e) {
-        cout << "Erro de formato no código: " << e.what() << endl;
+        cout << "Erro de formato no codigo: " << e.what() << endl;
     
     } catch (const runtime_error& e) {
-        cout << "Erro de negócio: " << e.what() << endl;
+        cout << "Erro de negocio: " << e.what() << endl;
     }
 }
 
 //-----------------------------------------------//
-// Implementação de CtrlApresentacaoGerente      //
+// Implementacao de CtrlApresentacaoGerente      //
 //-----------------------------------------------//
 
 CtrlApresentacaoGerente::CtrlApresentacaoGerente(IServicoGerente* servicoGerente,
@@ -317,38 +342,23 @@ CtrlApresentacaoGerente::CtrlApresentacaoGerente(IServicoGerente* servicoGerente
 }
 
 void CtrlApresentacaoGerente::executarCadastro() {
-    string nomeStr, emailStr, senhaStr;
-    int ramalInt;
-
     cout << "\n--- Tela de Cadastro de Gerente ---" << endl;
-    if (cin.rdbuf()->in_avail() > 0) {
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    }
-    cout << "Nome (Ex: Ana Souza): ";
-    getline(cin, nomeStr);
-    cout << "Email (ex: ana@hotel.com): ";
-    getline(cin, emailStr);
-    cout << "Senha (Ex: A1b$2): ";
-    getline(cin, senhaStr);
-    cout << "Ramal (valor inteiro): ";          cin >> ramalInt;
+
+    Nome nome     = lerDominioString<Nome>("Nome (Ex: Ana Souza): ");
+    Email email   = lerDominioString<Email>("Email (ex: ana@hotel.com): ");
+    Senha senha   = lerDominioString<Senha>("Senha (Ex: A1b$2): ");
+    Ramal ramal   = lerDominioInt<Ramal>("Ramal (valor inteiro): ");
 
     try {
-        Nome nome;     nome.setValor(nomeStr);
-        Email email;   email.setValor(emailStr);
-        Senha senha;   senha.setValor(senhaStr);
-        Ramal ramal;   ramal.setValor(ramalInt);
-
         servicoGerente->criar(nome, email, senha, ramal);
         servicoAuth->cadastrar(email, senha);
-
         cout << "Gerente cadastrado com sucesso!" << endl;
 
-    } catch (const invalid_argument& e) {
-        cout << "Erro de formato nos dados: " << e.what() << endl;
     } catch (const runtime_error& e) {
         cout << "Erro de negocio: " << e.what() << endl;
     }
 }
+
 
 void CtrlApresentacaoGerente::executarPerfil(const Email& emailGerente) {
     cout << "\n--- Meu Perfil ---" << endl;
@@ -372,39 +382,26 @@ void CtrlApresentacaoGerente::executarPerfil(const Email& emailGerente) {
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
     
     if (resposta == 1) {
-    
-        string novoNome, novaSenha;
-        int novoRamal;
-    
-        cout << "Novo nome (Ex: Ana Souza): ";
-        getline(cin, novoNome);
-        cout << "Nova senha (Ex: A1b$2): ";
-        getline(cin, novaSenha);
-        cout << "Novo ramal (valor inteiro): ";
-        cin >> novoRamal;
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        string promptNome = "Novo nome (atual: " + gerente.getNome().getValor() + "): ";
+        Nome novoNome     = lerDominioString<Nome>(promptNome);
+        Senha novaSenha   = lerDominioString<Senha>("Nova senha (Ex: A1b$2): ");
+        Ramal novoRamal   = lerDominioInt<Ramal>("Novo ramal (valor inteiro): ");
     
         try {
-            Nome nome;   nome.setValor(novoNome);
-            Senha senha; senha.setValor(novaSenha);
-            Ramal ramal; ramal.setValor(novoRamal);
-    
-            servicoGerente->editar(emailGerente, nome, senha, ramal);
-            servicoAuth->cadastrar(emailGerente, senha);
+            servicoGerente->editar(emailGerente, novoNome, novaSenha, novoRamal);
+            servicoAuth->cadastrar(emailGerente, novaSenha);
     
             cout << "Perfil atualizado com sucesso!" << endl;
-        } catch (const invalid_argument& e) {
-            cout << "Erro de formato nos dados: " << e.what() << endl;
         } catch (const runtime_error& e) {
             cout << "Erro de negocio: " << e.what() << endl;
         }
     } else if (resposta == 2) {
         while (true) {
             cout << "Tem certeza que deseja excluir perfil? (S/N): ";
-            
             char opcao;
             cin >> opcao;
-
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    
             if (opcao == 'S' || opcao == 's') {
                 servicoGerente->excluir(emailGerente);
                 cout << "Perfil excluido com sucesso!";
@@ -414,44 +411,33 @@ void CtrlApresentacaoGerente::executarPerfil(const Email& emailGerente) {
             }
         }
     }
-
 }
 
+
 //-----------------------------------------------//
-// Implementação de CtrlApresentacaoQuarto       //
+// Implementacao de CtrlApresentacaoQuarto       //
 //-----------------------------------------------//
 
 CtrlApresentacaoQuarto::CtrlApresentacaoQuarto(IServicoQuarto* servico) {
     this->servicoQuarto = servico;
 }
 
+CtrlApresentacaoQuarto::CtrlApresentacaoQuarto(IServicoQuarto* servico, CtrlApresentacaoReserva* ctrlReserva) {
+    this->servicoQuarto = servico;
+    this->ctrlReserva = ctrlReserva;
+}
+
 void CtrlApresentacaoQuarto::executarCadastroQuarto(const string& codigoHotel) {
-    int numero, capacidade, diaria, ramal;
-    
     cout << "\n--- Tela de Cadastro de Quarto ---" << endl;
-    
-    // Leitura dos dados como INT, usando cin >>
-    cout << "Numero do quarto: ";
-    cin >> numero;
-    cout << "Capacidade do quarto: ";
-    cin >> capacidade;
-    cout << "Diaria (em centavos): ";
-    cin >> diaria;
-    cout << "Ramal: ";
-    cin >> ramal;
-    cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Limpar o buffer após a última leitura
+
+    Numero numeroDom         = lerDominioInt<Numero>("Numero do quarto: ");
+    Capacidade capacidadeDom = lerDominioInt<Capacidade>("Capacidade do quarto: ");
+    Dinheiro diariaDom       = lerDominioInt<Dinheiro>("Diaria (em centavos): ");
+    Ramal ramalDom           = lerDominioInt<Ramal>("Ramal: ");
 
     try {
-        // 1. Validação de Formato (Domínios)
         Codigo codigoHotelDom;          codigoHotelDom.setValor(codigoHotel);
-        Numero numeroDom;               numeroDom.setValor(numero);
-        Capacidade capacidadeDom;       capacidadeDom.setValor(capacidade);
-        Dinheiro diariaDom;             diariaDom.setValor(diaria);
-        Ramal ramalDom;                 ramalDom.setValor(ramal);
-        
-        // 2. Chamada de Serviço (Lógica de Negócio)
         servicoQuarto->criar(codigoHotelDom, numeroDom, capacidadeDom, diariaDom, ramalDom);
-        
         cout << "Quarto cadastrado com sucesso!" << endl;
 
     } catch (const invalid_argument& e) {
@@ -462,6 +448,7 @@ void CtrlApresentacaoQuarto::executarCadastroQuarto(const string& codigoHotel) {
     }
 }
 
+
 void CtrlApresentacaoQuarto::executarListarQuartos(const string& codigoHotel) {
     cout << "\n--- Meus Quartos ---" << endl;
 
@@ -470,7 +457,7 @@ void CtrlApresentacaoQuarto::executarListarQuartos(const string& codigoHotel) {
     try {
         codigoHotelDom.setValor(codigoHotel);
     } catch(const std::invalid_argument& e) {
-        cout << "Codigo de hotel inválido" << endl;
+        cout << "Codigo de hotel invAlido" << endl;
     } 
 
     try {
@@ -507,7 +494,8 @@ void CtrlApresentacaoQuarto::executarListarQuartos(const string& codigoHotel) {
         cin >> indexEscolhido;
         cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Limpar buffer
         
-        if (indexEscolhido < 0 || indexEscolhido >= lista.size()) {
+        const int totalQuartos = static_cast<int>(lista.size());
+        if (indexEscolhido < 0 || indexEscolhido >= totalQuartos) {
             cout << "indice invalido. Voltando..." << endl;
             return;
         }
@@ -534,7 +522,11 @@ void CtrlApresentacaoQuarto::executarListarQuartos(const string& codigoHotel) {
                 executarExcluirQuarto(codigoHotel, numeroQuartoEscolhido);
             break;
             case 3:
-                cout << "gerenciar reserva escolhida (ainda nao implementado)" << endl;
+                if (ctrlReserva) {
+                    ctrlReserva->executarGerenciar(codigoHotel, numeroQuartoEscolhido);
+                } else {
+                    cout << "Erro: dependencia CtrlApresentacaoReserva nula." << endl;
+                }
             break;
             default:
                 cout << "opcao invalida" << endl;
@@ -545,101 +537,256 @@ void CtrlApresentacaoQuarto::executarListarQuartos(const string& codigoHotel) {
     }
 }
 
-// **ASSINATURA CORRIGIDA**: O segundo parâmetro deve ser string, assim como na chamada de listar
+// **ASSINATURA CORRIGIDA**: O segundo parAmetro deve ser string, assim como na chamada de listar
 void CtrlApresentacaoQuarto::executarEditarQuarto(const string& codigoHotel, const int& numeroQuarto) { 
-    cout << "\n--- Tela de Edição de Quarto (" << numeroQuarto << ") ---" << endl;
+    cout << "\n--- Tela de Edicao de Quarto (" << numeroQuarto << ") ---" << endl;
 
-    // 1. Validação de parâmetro (chaves)
     Numero numeroDom;
     Codigo codigoDom;
     try {
         codigoDom.setValor(codigoHotel);
-        numeroDom.setValor(numeroQuarto); // Converte string para int para validar o Domínio
-    } catch (const std::invalid_argument& e) {
-        cout << "Erro: Código/Número de quarto inválido: " << e.what() << endl;
+        numeroDom.setValor(numeroQuarto);
+    } catch (const invalid_argument& e) {
+        cout << "Erro: Codigo/Numero de quarto invalido: " << e.what() << endl;
         return;
     }
 
-    // 2. Encontra o quarto atual
-    std::optional<Quarto> quartoAtualOpt;
+    optional<Quarto> quartoAtualOpt;
     try {
         quartoAtualOpt = servicoQuarto->ler(codigoDom, numeroDom);
-    } catch (const std::runtime_error& e) {
+    } catch (const runtime_error& e) {
         cout << "Erro ao buscar quarto: " << e.what() << endl;
         return;
     }
     
     if (!quartoAtualOpt) {
-        cout << "Erro de negócio: Quarto com número " << numeroQuarto<< " não encontrado." << endl;
+        cout << "Erro de negocio: Quarto com numero " << numeroQuarto<< " nao encontrado." << endl;
         return;
     }
-    const Quarto& quartoAtual = *quartoAtualOpt; // Hotel atual é o Quarto atual
+    const Quarto& quartoAtual = *quartoAtualOpt;
 
-    int capacidade, diaria, ramal;
-    
-    cout << "Digite a NOVA CAPACIDADE (atual: "<< quartoAtual.getCapacidade().getValor() << "): ";
-    cin >> capacidade;
-    cout << "Digite a NOVA DIÁRIA (atual: " << quartoAtual.getDiaria().getValor() << "): ";
-    cin >> diaria;
-    
-    // CORRIGIDO: Acessando getRamal() de Quarto, não de Hotel
-    cout << "Digite o NOVO RAMAL (atual: " << quartoAtual.getRamal().getValor() << "): "; 
-    cin >> ramal;
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    string promptCap = "Digite a NOVA CAPACIDADE (atual: ";
+    promptCap += to_string(quartoAtual.getCapacidade().getValor());
+    promptCap += "): ";
+
+    string promptDia = "Digite a NOVA DIARIA (atual: ";
+    promptDia += to_string(quartoAtual.getDiaria().getValor());
+    promptDia += "): ";
+
+    string promptRam = "Digite o NOVO RAMAL (atual: ";
+    promptRam += to_string(quartoAtual.getRamal().getValor());
+    promptRam += "): ";
+
+    Capacidade capacidadeDom = lerDominioInt<Capacidade>(promptCap);
+    Dinheiro diariaDom       = lerDominioInt<Dinheiro>(promptDia);
+    Ramal ramalDom           = lerDominioInt<Ramal>(promptRam);
 
     try {
-        // 3. Validação de Formato dos novos dados
-        Capacidade capacidadeDom;   capacidadeDom.setValor(capacidade); 
-        Dinheiro diariaDom;         diariaDom.setValor(diaria);
-        Ramal ramalDom;             ramalDom.setValor(ramal); // CORRIGIDO: Atribuição correta
-        
-        // 4. Chamada de Servico
         servicoQuarto->editar(codigoDom, numeroDom, capacidadeDom, diariaDom, ramalDom);
-        
         cout << "\nQuarto editado com sucesso! " << endl;
 
     } catch (const invalid_argument& e) {
         cout << "Erro de formato nos dados: " << e.what() << endl;
     
     } catch (const runtime_error& e) {
-        cout << "Erro de negócio: " << e.what() << endl;
+        cout << "Erro de negocio: " << e.what() << endl;
     }
 }
 
-// **ASSINATURA CORRIGIDA**: O segundo parâmetro deve ser string
+
+
+// **ASSINATURA CORRIGIDA**: O segundo parAmetro deve ser string
 void CtrlApresentacaoQuarto::executarExcluirQuarto(const string& codigoHotel, const int& numeroQuarto) {
-    cout << "\n--- Tela de Exclusão de Quarto (" << numeroQuarto << ") ---" << endl;
+    cout << "\n--- Tela de Exclusao de Quarto (" << numeroQuarto << ") ---" << endl;
     
-    cout << "A exclusão de um quarto irá excluir todas reservas vinculadas a ele." << endl;
-    cout << "Confirma a exclusão do quarto com número " << numeroQuarto << "? (s/n): ";
+    cout << "A exclusao de um quarto ira excluir todas reservas vinculadas a ele." << endl;
+    cout << "Confirma a exclusao do quarto com numero " << numeroQuarto << "? (s/n): ";
     
     char resposta;
     cin >> resposta;
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
     if (std::tolower(static_cast<unsigned char>(resposta)) != 's') {
-        cout << "Exclusão cancelada." << endl;
+        cout << "Exclusao cancelada." << endl;
         return;
     }
 
     try {
-        // 1. Validação de Formato
-        // Converte string para int para validar o Domínio
+        // 1. Validacao de Formato
+        // Converte string para int para validar o DomAnio
         Numero numero;
         numero.setValor(numeroQuarto); 
 
         Codigo codigo;
         codigo.setValor(codigoHotel);
         
-        // 2. Chamada de Serviço
+        // 2. Chamada de Servico
         servicoQuarto->excluir(codigo, numero);
         
-        cout << "\nQuarto excluído com sucesso! Adeus! 👋" << endl;
+        cout << "\nQuarto excluAdo com sucesso! Adeus! " << endl;
 
     } catch (const invalid_argument& e) {
-        cout << "Erro de formato no código: " << e.what() << endl;
+        cout << "Erro de formato no codigo: " << e.what() << endl;
     
     } catch (const runtime_error& e) {
-        cout << "Erro de negócio: " << e.what() << endl;
+        cout << "Erro de negocio: " << e.what() << endl;
+    }
+}
+
+//-----------------------------------------------//
+// Implementacao de CtrlApresentacaoReserva      //
+//-----------------------------------------------//
+
+CtrlApresentacaoReserva::CtrlApresentacaoReserva(IServicoReserva* servico) {
+    this->servicoReserva = servico;
+}
+
+void CtrlApresentacaoReserva::executarGerenciar(const string& codigoHotel, const int& numeroQuarto) {
+    cout << "\n--- Reservas do Quarto " << numeroQuarto << " (Hotel: " << codigoHotel << ") ---" << endl;
+
+    // Lista por hotel e filtra pelo quarto
+    try {
+        Codigo ch; ch.setValor(codigoHotel);
+        auto lista = servicoReserva->listarPorHotel(ch);
+        int count = 0;
+        for (const auto& r : lista) {
+            if (r.getNumero().getValor() == numeroQuarto) {
+                cout << "[" << count << "] "
+                     << "Reserva: " << r.getCodigo().getValor()
+                     << " | Hospede: " << r.getHospede().getValor()
+                     << " | Chegada: " << r.getChegada().getValor()
+                     << " | Partida: " << r.getPartida().getValor()
+                     << " | Valor: " << r.getValor().getValor()
+                     << endl;
+                count++;
+            }
+        }
+
+        cout << "\n1 - Criar reserva" << endl;
+        cout << "2 - Editar reserva" << endl;
+        cout << "3 - Excluir reserva" << endl;
+        cout << "4 - Voltar" << endl;
+        cout << "Escolha uma opcao: ";
+
+        int op; cin >> op; cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        switch (op) {
+            case 1:
+                executarCadastroReserva(codigoHotel, numeroQuarto);
+            break;
+            case 2:
+            case 3: {
+                Codigo codReserva = lerDominioString<Codigo>("Informe o codigo da reserva: ");
+                if (op == 2) {
+                    executarEditarReserva(codReserva.getValor());
+                } else {
+                    executarExcluirReserva(codReserva.getValor());
+                }
+                break;
+            }
+            default:
+                cout << "Opcao invalida." << endl;
+                break;
+        }
+    } catch (const invalid_argument& e) {
+        cout << "Erro de formato: " << e.what() << endl;
+    } catch (const runtime_error& e) {
+        cout << "Erro de negocio: " << e.what() << endl;
+    }
+}
+
+void CtrlApresentacaoReserva::executarCadastroReserva(const string& codigoHotel, const int& numeroQuarto) {
+    cout << "\n--- Nova Reserva ---" << endl;
+    Codigo codReserva = lerDominioString<Codigo>("Codigo da reserva (10 chars): ");
+    Email hospede     = lerDominioString<Email>("Email do hospede: ");
+    Data chegada      = lerDataFormato("Chegada (DIA MES AAAA, ex: 10 JAN 2025): ");
+    Data partida      = lerDataFormato("Partida (DIA MES AAAA): ");
+    Dinheiro valor    = lerDominioInt<Dinheiro>("Valor total (centavos): ");
+
+    try {
+        Codigo codHotel;   codHotel.setValor(codigoHotel);
+        Numero num;        num.setValor(numeroQuarto);
+
+        servicoReserva->criar(codReserva, codHotel, num, hospede, chegada, partida, valor);
+        cout << "Reserva criada com sucesso!" << endl;
+    } catch (const invalid_argument& e) {
+        cout << "Erro de formato: " << e.what() << endl;
+    } catch (const runtime_error& e) {
+        cout << "Erro de negocio: " << e.what() << endl;
+    }
+}
+
+void CtrlApresentacaoReserva::executarListarReservasPorHotel(const string& codigoHotel) {
+    cout << "\n--- Reservas do Hotel " << codigoHotel << " ---" << endl;
+    try {
+        Codigo ch; ch.setValor(codigoHotel);
+        auto lista = servicoReserva->listarPorHotel(ch);
+        int idx = 0;
+        for (const auto& r : lista) {
+            cout << "[" << idx++ << "] "
+                 << r.getCodigo().getValor() << " | Qto " << r.getNumero().getValor()
+                 << " | Hospede " << r.getHospede().getValor()
+                 << " | " << r.getChegada().getValor() << " -> " << r.getPartida().getValor()
+                 << " | " << r.getValor().getValor() << endl;
+        }
+    } catch (const invalid_argument& e) {
+        cout << "Erro de formato: " << e.what() << endl;
+    } catch (const runtime_error& e) {
+        cout << "Erro de negocio: " << e.what() << endl;
+    }
+}
+
+void CtrlApresentacaoReserva::executarListarReservasPorHospede(const string& emailHospedeStr) {
+    cout << "\n--- Reservas do Hospede " << emailHospedeStr << " ---" << endl;
+    try {
+        Email eh; eh.setValor(emailHospedeStr);
+        auto lista = servicoReserva->listarPorHospede(eh);
+        int idx = 0;
+        for (const auto& r : lista) {
+            cout << "[" << idx++ << "] "
+                 << r.getCodigo().getValor() << " | Hotel " << r.getHotel().getValor()
+                 << " | Qto " << r.getNumero().getValor()
+                 << " | " << r.getChegada().getValor() << " -> " << r.getPartida().getValor()
+                 << " | " << r.getValor().getValor() << endl;
+        }
+    } catch (const invalid_argument& e) {
+        cout << "Erro de formato: " << e.what() << endl;
+    } catch (const runtime_error& e) {
+        cout << "Erro de negocio: " << e.what() << endl;
+    }
+}
+
+void CtrlApresentacaoReserva::executarEditarReserva(const string& codigoReserva) {
+    cout << "\n--- Editar Reserva (" << codigoReserva << ") ---" << endl;
+    Data novaChegada = lerDataFormato("Nova Chegada (DIA MES AAAA): ");
+    Data novaPartida = lerDataFormato("Nova Partida (DIA MES AAAA): ");
+    Dinheiro valor   = lerDominioInt<Dinheiro>("Novo Valor (centavos): ");
+
+    try {
+        Codigo cod; cod.setValor(codigoReserva);
+        servicoReserva->editar(cod, novaChegada, novaPartida, valor);
+        cout << "Reserva editada com sucesso!" << endl;
+    } catch (const invalid_argument& e) {
+        cout << "Erro de formato: " << e.what() << endl;
+    } catch (const runtime_error& e) {
+        cout << "Erro de negocio: " << e.what() << endl;
+    }
+}
+
+void CtrlApresentacaoReserva::executarExcluirReserva(const string& codigoReserva) {
+    cout << "\n--- Excluir Reserva (" << codigoReserva << ") ---" << endl;
+    cout << "Confirma a exclusao? (s/n): ";
+    char r; cin >> r; cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    if (std::tolower(static_cast<unsigned char>(r)) != 's') {
+        cout << "Exclusao cancelada." << endl;
+        return;
+    }
+    try {
+        Codigo cod; cod.setValor(codigoReserva);
+        servicoReserva->excluir(cod);
+        cout << "Reserva excluida com sucesso!" << endl;
+    } catch (const invalid_argument& e) {
+        cout << "Erro de formato: " << e.what() << endl;
+    } catch (const runtime_error& e) {
+        cout << "Erro de negocio: " << e.what() << endl;
     }
 }

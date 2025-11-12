@@ -1,3 +1,4 @@
+
 #include <iostream>
 #include <stdexcept>
 #include <limits>
@@ -25,6 +26,7 @@ void espera() {
 }
 void executarMenuGerente(CtrlApresentacaoHotel* ctrlHotel,
                          CtrlApresentacaoGerente* ctrlGerente,
+                         CtrlApresentacaoReserva* ctrlReserva,
                          const Email& emailGerente);
 
 int main() {
@@ -42,7 +44,8 @@ int main() {
 
     CtrlApresentacaoAutenticacao ctrlAuth(&sAuth);
     CtrlApresentacaoHospede ctrlHosp(&sHosp);
-    CtrlApresentacaoQuarto ctrlQuarto(&sQuarto);
+    CtrlApresentacaoReserva ctrlReserva(&sRes);
+    CtrlApresentacaoQuarto ctrlQuarto(&sQuarto, &ctrlReserva);
     CtrlApresentacaoHotel ctrlHotel(&sHotel, &ctrlQuarto);
     CtrlApresentacaoGerente ctrlGerente(&sGerente, &sAuth);
 
@@ -67,7 +70,7 @@ int main() {
                 if (ctrlAuth.executar(emailAutenticado)) {
                     cout << "Login bem-sucedido!" << endl;
                     espera();
-                    executarMenuGerente(&ctrlHotel, &ctrlGerente, emailAutenticado);
+                    executarMenuGerente(&ctrlHotel, &ctrlGerente, &ctrlReserva, emailAutenticado);
                 }
                 break;
             }
@@ -92,19 +95,21 @@ int main() {
 
 void executarMenuGerente(CtrlApresentacaoHotel* ctrlHotel,
                          CtrlApresentacaoGerente* ctrlGerente,
+                         CtrlApresentacaoReserva* ctrlReserva,
                          const Email& emailGerente) {
     while (true) {
         cout << "\n--- Menu do Gerente ---" << endl;
         cout << "1. Meu Perfil" << endl;
         cout << "2. Meus Hoteis" << endl;
         cout << "3. Criar Hotel" << endl;
-        cout << "4. Voltar ao Menu Principal" << endl;
+        cout << "4. Reservas" << endl;
+        cout << "5. Voltar ao Menu Principal" << endl;
         cout << "Escolha uma opcao: ";
 
         int opcao;
         cin >> opcao;
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        
+
         switch (opcao) {
             case 1:
                 ctrlGerente->executarPerfil(emailGerente);
@@ -116,6 +121,41 @@ void executarMenuGerente(CtrlApresentacaoHotel* ctrlHotel,
                 ctrlHotel->executarCadastroHotel(emailGerente);
                 break;
             case 4:
+                if (!ctrlReserva) {
+                    cout << "Funcionalidade de reservas indisponivel." << endl;
+                    break;
+                }
+                while (true) {
+                    cout << "\n--- Reservas ---" << endl;
+                    cout << "1. Listar reservas por hotel" << endl;
+                    cout << "2. Listar reservas por hospede" << endl;
+                    cout << "3. Voltar" << endl;
+                    cout << "Escolha uma opcao: ";
+
+                    int opReserva;
+                    cin >> opReserva;
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+                    if (opReserva == 1) {
+                        cout << "Informe o codigo do hotel: ";
+                        string codHotel;
+                        cin >> codHotel;
+                        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                        ctrlReserva->executarListarReservasPorHotel(codHotel);
+                    } else if (opReserva == 2) {
+                        cout << "Informe o email do hospede: ";
+                        string emailHospede;
+                        cin >> emailHospede;
+                        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                        ctrlReserva->executarListarReservasPorHospede(emailHospede);
+                    } else if (opReserva == 3) {
+                        break;
+                    } else {
+                        cout << "Opcao invalida." << endl;
+                    }
+                }
+                break;
+            case 5:
                 cout << "Retornando ao menu principal..." << endl;
                 return; // Sai deste 'while(true)' e volta para o 'main'
             default:

@@ -7,6 +7,7 @@
 using namespace std;
 
 class CtrlApresentacaoQuarto;
+class CtrlApresentacaoReserva;
 
 /**
  * @brief Controladora da Camada de Apresentação para Autenticação.
@@ -116,8 +117,10 @@ public:
 class CtrlApresentacaoQuarto {
 private:
     IServicoQuarto* servicoQuarto;
+    CtrlApresentacaoReserva* ctrlReserva = nullptr;
 public:
     CtrlApresentacaoQuarto(IServicoQuarto* servicoQuarto);
+    CtrlApresentacaoQuarto(IServicoQuarto* servicoQuarto, CtrlApresentacaoReserva* ctrlReserva);
 
     /**
      * @brief Executa o fluxo de apresentacao para gerenciar os quartos.
@@ -143,6 +146,46 @@ public:
      * @brief Permite excluir o quarto  selecionado 
      */
     void executarExcluirQuarto(const string& codigoHotel, const int& numeroQuarto);
+};
+
+/**
+ * @brief Controladora da Camada de Apresentacao para Reserva.
+ */
+class CtrlApresentacaoReserva {
+private:
+    IServicoReserva* servicoReserva;
+public:
+    CtrlApresentacaoReserva(IServicoReserva* servicoReserva);
+
+    /**
+     * @brief Menu de gerenciamento de reservas para um quarto.
+     */
+    void executarGerenciar(const string& codigoHotel, const int& numeroQuarto);
+
+    /**
+     * @brief Cadastra uma nova reserva para um quarto de um hotel.
+     */
+    void executarCadastroReserva(const string& codigoHotel, const int& numeroQuarto);
+
+    /**
+     * @brief Lista reservas para o hotel e permite acao sobre uma selecao.
+     */
+    void executarListarReservasPorHotel(const string& codigoHotel);
+
+    /**
+     * @brief Lista reservas por hospede (email) e permite acao sobre uma selecao.
+     */
+    void executarListarReservasPorHospede(const string& emailHospedeStr);
+
+    /**
+     * @brief Edita dados basicos de uma reserva existente.
+     */
+    void executarEditarReserva(const string& codigoReserva);
+
+    /**
+     * @brief Exclui uma reserva existente.
+     */
+    void executarExcluirReserva(const string& codigoReserva);
 };
 
 #endif // CONTROLADORAS_HPP_INCLUDED
