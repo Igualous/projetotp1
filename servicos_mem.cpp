@@ -1,3 +1,7 @@
+/**
+ * @file servicos_mem.cpp
+ * @brief Implementa os servicos de aplicacao em memoria.
+ */
 #include "servicos_mem.hpp"
 #include <stdexcept>
 #include <algorithm>
@@ -12,6 +16,10 @@ ServicoQuartoMem::~ServicoQuartoMem() = default;
 bool ServicoAutenticacaoMem::autenticar(const Email& email, const Senha& senha) {
     auto it = credenciais.find(email.getValor());
     return (it != credenciais.end() && it->second == senha.getValor());
+}
+
+void ServicoAutenticacaoMem::cadastrar(const Email& email, const Senha& senha) {
+    credenciais[email.getValor()] = senha.getValor();
 }
 
 // ---------- Gerente ----------

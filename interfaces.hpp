@@ -1,3 +1,10 @@
+/**
+ * @file interfaces.hpp
+ * @brief Define os contratos da camada de servicos (regras de negocio).
+ *
+ * A camada de apresentacao conhece apenas estas interfaces, permitindo
+ * alternar implementacoes concretas (memoria, banco de dados etc.).
+ */
 #ifndef INTERFACES_HPP_INCLUDED
 #define INTERFACES_HPP_INCLUDED
 
@@ -9,22 +16,30 @@
 #include "dominios.hpp"
 #include "entidades.hpp"
 
-// Usando std::optional e std::vector para facilitar
 using std::optional;
 using std::vector;
 
-// ---- Autenticação ----
 /**
- * @brief Interface de Serviço para a autenticação de Gerentes.
+ * @brief Interface de servico para autenticacao de usuarios.
  */
 class IServicoAutenticacao {
 public:
+    /**
+     * @brief Valida um par email/senha.
+     */
     virtual bool autenticar(const Email& email, const Senha& senha) = 0;
+
+    /**
+     * @brief Registra credenciais para uso futuro.
+     */
     virtual void cadastrar(const Email& email, const Senha& senha) = 0;
+
     virtual ~IServicoAutenticacao() = default;
 };
 
-// ---- Conta do Gerente ----
+/**
+ * @brief Interface para manipulacao de gerentes.
+ */
 class IServicoGerente {
 public:
     virtual void criar(const Nome&, const Email&, const Senha&, const Ramal&) = 0;
@@ -35,7 +50,9 @@ public:
     virtual ~IServicoGerente() = default;
 };
 
-// --- Hóspede ---
+/**
+ * @brief Interface para manipulacao de hospedes.
+ */
 class IServicoHospede {
 public:
     virtual void cadastrar(const Nome&, const Email&, const Senha&, const Cartao&, const Endereco&) = 0;
@@ -46,7 +63,9 @@ public:
     virtual ~IServicoHospede() = default;
 };
 
-// --- Hotel ---
+/**
+ * @brief Interface para manipulacao de hoteis.
+ */
 class IServicoHotel {
 public:
     virtual void criar(const Codigo&, const Nome&, const Endereco&, const Telefone&, const Email&) = 0;
@@ -58,7 +77,9 @@ public:
     virtual ~IServicoHotel() = default;
 };
 
-// --- Quarto ---
+/**
+ * @brief Interface para manipulacao de quartos.
+ */
 class IServicoQuarto {
 public:
     virtual void criar(const Codigo&, const Numero&, const Capacidade&, const Dinheiro&, const Ramal&) = 0;
@@ -69,7 +90,9 @@ public:
     virtual ~IServicoQuarto() = default;
 };
 
-// --- Reserva ---
+/**
+ * @brief Interface para manipulacao de reservas.
+ */
 class IServicoReserva {
 public:
     virtual void criar(const Codigo&, const Codigo&, const Numero&, const Email&, const Data&, const Data&, const Dinheiro&) = 0;
@@ -81,6 +104,5 @@ public:
     virtual vector<Reserva> listar() = 0;
     virtual ~IServicoReserva() = default;
 };
-
 
 #endif // INTERFACES_HPP_INCLUDED

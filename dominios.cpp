@@ -1,3 +1,7 @@
+/**
+ * @file dominios.cpp
+ * @brief Implementa as regras de validacao dos dominios declarados em dominios.hpp.
+ */
 #include "dominios.hpp"
 
 #include <algorithm>

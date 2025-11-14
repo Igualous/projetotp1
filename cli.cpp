@@ -1,12 +1,22 @@
+/**
+ * @file cli.cpp
+ * @brief Ponto de entrada da interface de linha de comando do sistema.
+ *
+ * Responsavel por montar os servicos em memoria, injetar as controladoras
+ * e disponibilizar menus para gerentes e hospedes.
+ */
 #include <iostream>
 #include <stdexcept>
 #include <limits>
 #include "interfaces.hpp"
-#include "servicos_mem.hpp"     
+#include "servicos_mem.hpp"
 #include "controladoras.hpp"
 
 using namespace std;
 
+/**
+ * @brief Limpa a tela de acordo com o sistema operacional.
+ */
 void limpa() {
     #ifdef _WIN32
         // Comando para limpar o terminal no Windows
@@ -17,16 +27,26 @@ void limpa() {
     #endif
 }
 
+/**
+ * @brief Gera uma pequena espera para que o usuario leia as mensagens.
+ */
 void espera() {
     double cont = 0;
     while (cont < 99999) {
         cont += 0.001;
     }
 }
+/**
+ * @brief Menu principal exibido apos o login do gerente.
+ */
 void executarMenuGerente(CtrlApresentacaoHotel* ctrlHotel,
                          CtrlApresentacaoGerente* ctrlGerente,
+                         CtrlApresentacaoReserva* ctrlReserva,
                          const Email& emailGerente);
 
+/**
+ * @brief Instancia os servicos e inicia o loop principal da CLI.
+ */
 int main() {
     ServicoAutenticacaoMem sAuth;
     ServicoGerenteMem      sGerente;
@@ -42,7 +62,9 @@ int main() {
 
     CtrlApresentacaoAutenticacao ctrlAuth(&sAuth);
     CtrlApresentacaoHospede ctrlHosp(&sHosp);
-    CtrlApresentacaoHotel ctrlHotel(&sHotel);
+    CtrlApresentacaoReserva ctrlReserva(&sRes);
+    CtrlApresentacaoQuarto ctrlQuarto(&sQuarto, &ctrlReserva);
+    CtrlApresentacaoHotel ctrlHotel(&sHotel, &ctrlQuarto);
     CtrlApresentacaoGerente ctrlGerente(&sGerente, &sAuth);
 
     cout << "Bem-vindo ao Sistema de Gestao de Hoteis!" << endl;
@@ -66,7 +88,7 @@ int main() {
                 if (ctrlAuth.executar(emailAutenticado)) {
                     cout << "Login bem-sucedido!" << endl;
                     espera();
-                    executarMenuGerente(&ctrlHotel, &ctrlGerente, emailAutenticado);
+                    executarMenuGerente(&ctrlHotel, &ctrlGerente, &ctrlReserva, emailAutenticado);
                 }
                 break;
             }
@@ -91,19 +113,21 @@ int main() {
 
 void executarMenuGerente(CtrlApresentacaoHotel* ctrlHotel,
                          CtrlApresentacaoGerente* ctrlGerente,
+                         CtrlApresentacaoReserva* ctrlReserva,
                          const Email& emailGerente) {
     while (true) {
         cout << "\n--- Menu do Gerente ---" << endl;
         cout << "1. Meu Perfil" << endl;
         cout << "2. Meus Hoteis" << endl;
         cout << "3. Criar Hotel" << endl;
-        cout << "4. Voltar ao Menu Principal" << endl;
+        cout << "4. Reservas" << endl;
+        cout << "5. Voltar ao Menu Principal" << endl;
         cout << "Escolha uma opcao: ";
 
         int opcao;
         cin >> opcao;
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        
+
         switch (opcao) {
             case 1:
                 ctrlGerente->executarPerfil(emailGerente);
@@ -115,6 +139,41 @@ void executarMenuGerente(CtrlApresentacaoHotel* ctrlHotel,
                 ctrlHotel->executarCadastroHotel(emailGerente);
                 break;
             case 4:
+                if (!ctrlReserva) {
+                    cout << "Funcionalidade de reservas indisponivel." << endl;
+                    break;
+                }
+                while (true) {
+                    cout << "\n--- Reservas ---" << endl;
+                    cout << "1. Listar reservas por hotel" << endl;
+                    cout << "2. Listar reservas por hospede" << endl;
+                    cout << "3. Voltar" << endl;
+                    cout << "Escolha uma opcao: ";
+
+                    int opReserva;
+                    cin >> opReserva;
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+                    if (opReserva == 1) {
+                        cout << "Informe o codigo do hotel: ";
+                        string codHotel;
+                        cin >> codHotel;
+                        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                        ctrlReserva->executarListarReservasPorHotel(codHotel);
+                    } else if (opReserva == 2) {
+                        cout << "Informe o email do hospede: ";
+                        string emailHospede;
+                        cin >> emailHospede;
+                        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                        ctrlReserva->executarListarReservasPorHospede(emailHospede);
+                    } else if (opReserva == 3) {
+                        break;
+                    } else {
+                        cout << "Opcao invalida." << endl;
+                    }
+                }
+                break;
+            case 5:
                 cout << "Retornando ao menu principal..." << endl;
                 return; // Sai deste 'while(true)' e volta para o 'main'
             default:

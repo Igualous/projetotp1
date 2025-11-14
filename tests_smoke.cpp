@@ -1,7 +1,14 @@
+/**
+ * @file tests_smoke.cpp
+ * @brief Executa um smoke test percorrendo os principais fluxos em memoria.
+ */
 #include <iostream>
 #include "interfaces.hpp"
 #include "servicos_mem.hpp"
 
+/**
+ * @brief Executa o smoke test e retorna 0 quando nao ha falhas.
+ */
 int main() {
     // Instancias concretas (em memoria)
     ServicoAutenticacaoMem sAuth;
