@@ -1,3 +1,7 @@
+/**
+ * @file controladoras.cpp
+ * @brief Implementa os fluxos da camada de apresentacao baseados em CLI.
+ */
 #include "controladoras.hpp"
 #include <iostream>
 #include <string>

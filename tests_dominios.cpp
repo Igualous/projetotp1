@@ -1,3 +1,7 @@
+/**
+ * @file tests_dominios.cpp
+ * @brief Pequena bateria de testes para dominios, entidades e servicos.
+ */
 #include "dominios.hpp"
 #include "entidades.hpp"
 #include "interfaces.hpp"
@@ -8,10 +12,16 @@
 
 using namespace std;
 
+/**
+ * @brief Imprime o resultado de um caso de teste simples.
+ */
 void testar(const string& nomeTeste, bool sucesso) {
     cout << "  " << (sucesso ? "[PASSOU]" : "[FALHOU]") << " : " << nomeTeste << endl;
 }
 
+/**
+ * @brief Executa os testes e retorna 0 quando todos terminam.
+ */
 int main() {
     cout << "--- Iniciando Testes de Dominio ---" << endl;
 
