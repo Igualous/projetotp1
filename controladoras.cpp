@@ -384,6 +384,7 @@ void CtrlApresentacaoGerente::executarPerfil(const Email& emailGerente) {
 
     cout << "\n1 - Editar Perfil";
     cout << "\n2 - Remover Perfil";
+    cout << "\n2 - Voltar";
     cout << "\n\nEscolha o que desejar fazer: ";
 
     int resposta;
@@ -419,6 +420,10 @@ void CtrlApresentacaoGerente::executarPerfil(const Email& emailGerente) {
                 break;
             }
         }
+    } else if (resposta == 3) {
+        return;
+    } else {
+        cout << "Opcao invalida." << endl;
     }
 }
 
