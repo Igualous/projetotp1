@@ -3,6 +3,7 @@
  * @brief Implementa os fluxos da camada de apresentacao baseados em CLI.
  */
 #include "controladoras.hpp"
+#include "globals.hpp"
 #include <iostream>
 #include <string>
 #include <stdexcept> 
@@ -91,6 +92,8 @@ CtrlApresentacaoAutenticacao::CtrlApresentacaoAutenticacao(IServicoAutenticacao*
 }
 
 bool CtrlApresentacaoAutenticacao::executar(Email& emailAutenticado) {
+    limpa();
+    header();
     cout << "\n--- Tela de Login ---" << endl;
 
     Email email = lerDominioString<Email>("Digite seu email: ");
@@ -117,6 +120,8 @@ CtrlApresentacaoHospede::CtrlApresentacaoHospede(IServicoHospede* servicoHospede
 }
 
 void CtrlApresentacaoHospede::executarCadastro() {
+    limpa();
+    header();
     cout << "\n--- Tela de Cadastro de Hospede ---" << endl;
 
     Nome nome       = lerDominioString<Nome>("Nome (Ex: Joao Silva): ");
@@ -131,6 +136,7 @@ void CtrlApresentacaoHospede::executarCadastro() {
             servicoAuth->cadastrar(email, senha);
         }
         cout << "Cadastro realizado com sucesso!" << endl;
+        espera();
 
     } catch (const runtime_error& e) {
         cout << "Erro de negocio: " << e.what() << endl;
@@ -149,6 +155,8 @@ CtrlApresentacaoHotel::CtrlApresentacaoHotel(IServicoHotel* servico, CtrlApresen
 }
 
 void CtrlApresentacaoHotel::executarCadastroHotel(const Email& emailGerente) {
+    limpa();
+    header();
     cout << "\n--- Tela de Cadastro de Hotel ---" << endl;
 
     Codigo codigo = lerDominioString<Codigo>("Codigo (10 chars, ex: hotel12345): ");
@@ -159,6 +167,7 @@ void CtrlApresentacaoHotel::executarCadastroHotel(const Email& emailGerente) {
     try {
         servicoHotel->criar(codigo, nome, end, tel, emailGerente);
         cout << "Hotel cadastrado com sucesso!" << endl;
+        espera();
 
     } catch (const runtime_error& e) {
         cout << "Erro de negocio: " << e.what() << endl;
@@ -167,6 +176,8 @@ void CtrlApresentacaoHotel::executarCadastroHotel(const Email& emailGerente) {
 
 
 void CtrlApresentacaoHotel::executarListarHoteis(const Email& emailGerente) {
+    limpa();
+    header();
     cout << "\n--- Meus Hoteis ---" << endl;
     try {
         auto lista = servicoHotel->listarPorGerente(emailGerente);
@@ -211,6 +222,8 @@ void CtrlApresentacaoHotel::executarListarHoteis(const Email& emailGerente) {
         string codigoHotelEscolhido = hotelEscolhido.getCodigo().getValor();
         string nomeHotelEscolhido = hotelEscolhido.getNome().getValor();
         
+        limpa();
+        header();
         cout << "Hotel selecionado: " << nomeHotelEscolhido << endl;
 
 
@@ -255,6 +268,8 @@ void CtrlApresentacaoHotel::executarListarHoteis(const Email& emailGerente) {
 }
 
 void CtrlApresentacaoHotel::executarEditarHotel(const string& codigoHotel) {
+    limpa();
+    header();
     cout << "\n--- Tela de Edicao de Hotel (" << codigoHotel << ") ---" << endl;
 
     Codigo codigo;
@@ -298,6 +313,7 @@ void CtrlApresentacaoHotel::executarEditarHotel(const string& codigoHotel) {
     try {
         servicoHotel->editar(codigo, nome, end, tel);
         cout << "\nHotel editado com sucesso!" << endl;
+        espera();
 
     } catch (const runtime_error& e) {
         cout << "Erro de negocio: " << e.what() << endl;
@@ -308,6 +324,8 @@ void CtrlApresentacaoHotel::executarEditarHotel(const string& codigoHotel) {
 
 
 void CtrlApresentacaoHotel::executarExcluirHotel(const string& codigoHotel) {
+    limpa();
+    header();
     cout << "\n--- Tela de Exclusao de Hotel (" << codigoHotel << ") ---" << endl;
     
     cout << "A exclusao de um hotel ira quartos e reservas vinculadas." << endl;
@@ -331,7 +349,7 @@ void CtrlApresentacaoHotel::executarExcluirHotel(const string& codigoHotel) {
         servicoHotel->excluir(codigo);
         
         cout << "\nHotel excluAdo com sucesso!" << endl;
-
+        espera();
     } catch (const invalid_argument& e) {
         cout << "Erro de formato no codigo: " << e.what() << endl;
     
@@ -351,6 +369,8 @@ CtrlApresentacaoGerente::CtrlApresentacaoGerente(IServicoGerente* servicoGerente
 }
 
 void CtrlApresentacaoGerente::executarCadastro() {
+    limpa();
+    header();
     cout << "\n--- Tela de Cadastro de Gerente ---" << endl;
 
     Nome nome     = lerDominioString<Nome>("Nome (Ex: Ana Souza): ");
@@ -362,6 +382,7 @@ void CtrlApresentacaoGerente::executarCadastro() {
         servicoGerente->criar(nome, email, senha, ramal);
         servicoAuth->cadastrar(email, senha);
         cout << "Gerente cadastrado com sucesso!" << endl;
+        espera();
 
     } catch (const runtime_error& e) {
         cout << "Erro de negocio: " << e.what() << endl;
@@ -370,6 +391,8 @@ void CtrlApresentacaoGerente::executarCadastro() {
 
 
 void CtrlApresentacaoGerente::executarPerfil(const Email& emailGerente) {
+    limpa();
+    header();
     cout << "\n--- Meu Perfil ---" << endl;
     auto gerenteOpt = servicoGerente->ler(emailGerente);
     if (!gerenteOpt) {
@@ -401,6 +424,7 @@ void CtrlApresentacaoGerente::executarPerfil(const Email& emailGerente) {
             servicoAuth->cadastrar(emailGerente, novaSenha);
     
             cout << "Perfil atualizado com sucesso!" << endl;
+            espera();
         } catch (const runtime_error& e) {
             cout << "Erro de negocio: " << e.what() << endl;
         }
@@ -414,6 +438,7 @@ void CtrlApresentacaoGerente::executarPerfil(const Email& emailGerente) {
             if (opcao == 'S' || opcao == 's') {
                 servicoGerente->excluir(emailGerente);
                 cout << "Perfil excluido com sucesso!";
+                espera();
                 break;
             } else if (opcao == 'N' || opcao == 'n') {
                 break;
@@ -437,6 +462,8 @@ CtrlApresentacaoQuarto::CtrlApresentacaoQuarto(IServicoQuarto* servico, CtrlApre
 }
 
 void CtrlApresentacaoQuarto::executarCadastroQuarto(const string& codigoHotel) {
+    limpa();
+    header();
     cout << "\n--- Tela de Cadastro de Quarto ---" << endl;
 
     Numero numeroDom         = lerDominioInt<Numero>("Numero do quarto: ");
@@ -448,6 +475,7 @@ void CtrlApresentacaoQuarto::executarCadastroQuarto(const string& codigoHotel) {
         Codigo codigoHotelDom;          codigoHotelDom.setValor(codigoHotel);
         servicoQuarto->criar(codigoHotelDom, numeroDom, capacidadeDom, diariaDom, ramalDom);
         cout << "Quarto cadastrado com sucesso!" << endl;
+        espera();
 
     } catch (const invalid_argument& e) {
         cout << "Erro de formato nos dados: " << e.what() << endl;
@@ -459,6 +487,8 @@ void CtrlApresentacaoQuarto::executarCadastroQuarto(const string& codigoHotel) {
 
 
 void CtrlApresentacaoQuarto::executarListarQuartos(const string& codigoHotel) {
+    limpa();
+    header();
     cout << "\n--- Meus Quartos ---" << endl;
 
     // validacao de parametro
@@ -510,7 +540,8 @@ void CtrlApresentacaoQuarto::executarListarQuartos(const string& codigoHotel) {
         }
         const Quarto& QuartoEscolhido = lista.at(indexEscolhido);
         int numeroQuartoEscolhido = QuartoEscolhido.getNumero().getValor();
-        
+        limpa();
+        header();
         cout << "Quarto selecionado: " << numeroQuartoEscolhido << endl;
 
 
@@ -548,6 +579,8 @@ void CtrlApresentacaoQuarto::executarListarQuartos(const string& codigoHotel) {
 
 // **ASSINATURA CORRIGIDA**: O segundo parAmetro deve ser string, assim como na chamada de listar
 void CtrlApresentacaoQuarto::executarEditarQuarto(const string& codigoHotel, const int& numeroQuarto) { 
+    limpa();
+    header();
     cout << "\n--- Tela de Edicao de Quarto (" << numeroQuarto << ") ---" << endl;
 
     Numero numeroDom;
@@ -606,6 +639,8 @@ void CtrlApresentacaoQuarto::executarEditarQuarto(const string& codigoHotel, con
 
 // **ASSINATURA CORRIGIDA**: O segundo parAmetro deve ser string
 void CtrlApresentacaoQuarto::executarExcluirQuarto(const string& codigoHotel, const int& numeroQuarto) {
+    limpa();
+    header();
     cout << "\n--- Tela de Exclusao de Quarto (" << numeroQuarto << ") ---" << endl;
     
     cout << "A exclusao de um quarto ira excluir todas reservas vinculadas a ele." << endl;
@@ -632,7 +667,8 @@ void CtrlApresentacaoQuarto::executarExcluirQuarto(const string& codigoHotel, co
         // 2. Chamada de Servico
         servicoQuarto->excluir(codigo, numero);
         
-        cout << "\nQuarto excluAdo com sucesso! Adeus! " << endl;
+        cout << "\nQuarto excluAdo com sucesso!" << endl;
+        espera();
 
     } catch (const invalid_argument& e) {
         cout << "Erro de formato no codigo: " << e.what() << endl;
@@ -651,6 +687,8 @@ CtrlApresentacaoReserva::CtrlApresentacaoReserva(IServicoReserva* servico) {
 }
 
 void CtrlApresentacaoReserva::executarGerenciar(const string& codigoHotel, const int& numeroQuarto) {
+    limpa();
+    header();
     cout << "\n--- Reservas do Quarto " << numeroQuarto << " (Hotel: " << codigoHotel << ") ---" << endl;
 
     // Lista por hotel e filtra pelo quarto
@@ -704,6 +742,8 @@ void CtrlApresentacaoReserva::executarGerenciar(const string& codigoHotel, const
 }
 
 void CtrlApresentacaoReserva::executarCadastroReserva(const string& codigoHotel, const int& numeroQuarto) {
+    limpa();
+    header();
     cout << "\n--- Nova Reserva ---" << endl;
     Codigo codReserva = lerDominioString<Codigo>("Codigo da reserva (10 chars): ");
     Email hospede     = lerDominioString<Email>("Email do hospede: ");
@@ -725,6 +765,8 @@ void CtrlApresentacaoReserva::executarCadastroReserva(const string& codigoHotel,
 }
 
 void CtrlApresentacaoReserva::executarListarReservasPorHotel(const string& codigoHotel) {
+    limpa();
+    header();
     cout << "\n--- Reservas do Hotel " << codigoHotel << " ---" << endl;
     try {
         Codigo ch; ch.setValor(codigoHotel);
@@ -745,6 +787,8 @@ void CtrlApresentacaoReserva::executarListarReservasPorHotel(const string& codig
 }
 
 void CtrlApresentacaoReserva::executarListarReservasPorHospede(const string& emailHospedeStr) {
+    limpa();
+    header();
     cout << "\n--- Reservas do Hospede " << emailHospedeStr << " ---" << endl;
     try {
         Email eh; eh.setValor(emailHospedeStr);
@@ -765,6 +809,8 @@ void CtrlApresentacaoReserva::executarListarReservasPorHospede(const string& ema
 }
 
 void CtrlApresentacaoReserva::executarEditarReserva(const string& codigoReserva) {
+    limpa();
+    header();
     cout << "\n--- Editar Reserva (" << codigoReserva << ") ---" << endl;
     Data novaChegada = lerDataFormato("Nova Chegada (DIA MES AAAA): ");
     Data novaPartida = lerDataFormato("Nova Partida (DIA MES AAAA): ");
@@ -774,6 +820,7 @@ void CtrlApresentacaoReserva::executarEditarReserva(const string& codigoReserva)
         Codigo cod; cod.setValor(codigoReserva);
         servicoReserva->editar(cod, novaChegada, novaPartida, valor);
         cout << "Reserva editada com sucesso!" << endl;
+        espera();
     } catch (const invalid_argument& e) {
         cout << "Erro de formato: " << e.what() << endl;
     } catch (const runtime_error& e) {
@@ -782,6 +829,8 @@ void CtrlApresentacaoReserva::executarEditarReserva(const string& codigoReserva)
 }
 
 void CtrlApresentacaoReserva::executarExcluirReserva(const string& codigoReserva) {
+    limpa();
+    header();
     cout << "\n--- Excluir Reserva (" << codigoReserva << ") ---" << endl;
     cout << "Confirma a exclusao? (s/n): ";
     char r; cin >> r; cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -793,6 +842,7 @@ void CtrlApresentacaoReserva::executarExcluirReserva(const string& codigoReserva
         Codigo cod; cod.setValor(codigoReserva);
         servicoReserva->excluir(cod);
         cout << "Reserva excluida com sucesso!" << endl;
+        espera();
     } catch (const invalid_argument& e) {
         cout << "Erro de formato: " << e.what() << endl;
     } catch (const runtime_error& e) {
