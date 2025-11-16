@@ -38,9 +38,11 @@ public:
 class CtrlApresentacaoHospede {
 private:
     IServicoHospede* servicoHospede;
+    IServicoAutenticacao* servicoAuth;
 
 public:
-    explicit CtrlApresentacaoHospede(IServicoHospede* servico);
+    CtrlApresentacaoHospede(IServicoHospede* servicoHospede,
+                            IServicoAutenticacao* servicoAuth);
 
     /**
      * @brief Dialogo de cadastro de um novo hospede.

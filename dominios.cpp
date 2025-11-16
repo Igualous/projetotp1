@@ -357,15 +357,40 @@ void Numero::setValor(int numero) {
 
 
 // ---------- Ramal ----------
-void Ramal::validar(int ramal) {
-    if (ramal < MIN || ramal > MAX) { // 0..50
-        throw invalid_argument("Ramal deve estar entre 0 e 50.");
+void Ramal::validar(const string& ramal) {
+    if (ramal.size() != 2) {
+        throw invalid_argument("Ramal deve ter exatamente 2 digitos.");
+    }
+    for (char c : ramal) {
+        if (!isdigit(static_cast<unsigned char>(c))) {
+            throw invalid_argument("Ramal deve conter apenas digitos.");
+        }
+    }
+    int valorNumerico = stoi(ramal);
+    if (valorNumerico < MIN || valorNumerico > MAX) { // 00..50
+        throw invalid_argument("Ramal deve estar entre 00 e 50.");
     }
 }
 
-void Ramal::setValor(int ramal) {
+string Ramal::formatar(int ramal) {
+    if (ramal < MIN || ramal > MAX) {
+        throw invalid_argument("Ramal deve estar entre 00 e 50.");
+    }
+    string prefixo = (ramal < 10 ? "0" : "");
+    return prefixo + to_string(ramal);
+}
+
+void Ramal::setValor(const string& ramal) {
     validar(ramal);
     this->valor = ramal;
+}
+
+void Ramal::setValor(int ramal) {
+    this->valor = formatar(ramal);
+}
+
+int Ramal::getValorNumerico() const {
+    return stoi(valor);
 }
 
 

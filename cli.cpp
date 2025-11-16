@@ -45,6 +45,12 @@ void executarMenuGerente(CtrlApresentacaoHotel* ctrlHotel,
                          const Email& emailGerente);
 
 /**
+ * @brief Menu exibido para hospedes autenticados.
+ */
+void executarMenuHospede(CtrlApresentacaoReserva* ctrlReserva,
+                         const Email& emailHospede);
+
+/**
  * @brief Instancia os servicos e inicia o loop principal da CLI.
  */
 int main() {
@@ -61,7 +67,7 @@ int main() {
     sRes.setServicosRelacionados(&sHotel, &sQuarto, &sHosp);
 
     CtrlApresentacaoAutenticacao ctrlAuth(&sAuth);
-    CtrlApresentacaoHospede ctrlHosp(&sHosp);
+    CtrlApresentacaoHospede ctrlHosp(&sHosp, &sAuth);
     CtrlApresentacaoReserva ctrlReserva(&sRes);
     CtrlApresentacaoQuarto ctrlQuarto(&sQuarto, &ctrlReserva);
     CtrlApresentacaoHotel ctrlHotel(&sHotel, &ctrlQuarto);
@@ -88,7 +94,13 @@ int main() {
                 if (ctrlAuth.executar(emailAutenticado)) {
                     cout << "Login bem-sucedido!" << endl;
                     espera();
-                    executarMenuGerente(&ctrlHotel, &ctrlGerente, &ctrlReserva, emailAutenticado);
+                    if (sGerente.ler(emailAutenticado)) {
+                        executarMenuGerente(&ctrlHotel, &ctrlGerente, &ctrlReserva, emailAutenticado);
+                    } else if (sHosp.ler(emailAutenticado)) {
+                        executarMenuHospede(&ctrlReserva, emailAutenticado);
+                    } else {
+                        cout << "Erro: perfil nao encontrado para este login." << endl;
+                    }
                 }
                 break;
             }
@@ -179,6 +191,34 @@ void executarMenuGerente(CtrlApresentacaoHotel* ctrlHotel,
             default:
                 cout << "Opcao invalida. Tente novamente." << endl;
                 break;
+        }
+    }
+}
+
+void executarMenuHospede(CtrlApresentacaoReserva* ctrlReserva,
+                         const Email& emailHospede) {
+    if (!ctrlReserva) {
+        cout << "Funcionalidade de reservas indisponivel." << endl;
+        return;
+    }
+
+    while (true) {
+        cout << "\n--- Menu do Hospede ---" << endl;
+        cout << "1. Minhas Reservas" << endl;
+        cout << "2. Voltar ao Menu Principal" << endl;
+        cout << "Escolha uma opcao: ";
+
+        int opcao;
+        cin >> opcao;
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+        if (opcao == 1) {
+            ctrlReserva->executarListarReservasPorHospede(emailHospede.getValor());
+        } else if (opcao == 2) {
+            cout << "Retornando ao menu principal..." << endl;
+            return;
+        } else {
+            cout << "Opcao invalida. Tente novamente." << endl;
         }
     }
 }

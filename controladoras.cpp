@@ -110,8 +110,10 @@ bool CtrlApresentacaoAutenticacao::executar(Email& emailAutenticado) {
 // Implementacao de CtrlApresentacaoHospede //
 //------------------------------------------//
 
-CtrlApresentacaoHospede::CtrlApresentacaoHospede(IServicoHospede* servico) {
-    this->servicoHospede = servico;
+CtrlApresentacaoHospede::CtrlApresentacaoHospede(IServicoHospede* servicoHospede,
+                                                 IServicoAutenticacao* servicoAuth) {
+    this->servicoHospede = servicoHospede;
+    this->servicoAuth = servicoAuth;
 }
 
 void CtrlApresentacaoHospede::executarCadastro() {
@@ -125,6 +127,9 @@ void CtrlApresentacaoHospede::executarCadastro() {
 
     try {
         servicoHospede->cadastrar(nome, email, senha, cartao, end);
+        if (servicoAuth) {
+            servicoAuth->cadastrar(email, senha);
+        }
         cout << "Cadastro realizado com sucesso!" << endl;
 
     } catch (const runtime_error& e) {
@@ -351,7 +356,7 @@ void CtrlApresentacaoGerente::executarCadastro() {
     Nome nome     = lerDominioString<Nome>("Nome (Ex: Ana Souza): ");
     Email email   = lerDominioString<Email>("Email (ex: ana@hotel.com): ");
     Senha senha   = lerDominioString<Senha>("Senha (Ex: A1b$2): ");
-    Ramal ramal   = lerDominioInt<Ramal>("Ramal (valor inteiro): ");
+    Ramal ramal   = lerDominioString<Ramal>("Ramal (00-50, sempre dois digitos): ");
 
     try {
         servicoGerente->criar(nome, email, senha, ramal);
@@ -389,7 +394,7 @@ void CtrlApresentacaoGerente::executarPerfil(const Email& emailGerente) {
         string promptNome = "Novo nome (atual: " + gerente.getNome().getValor() + "): ";
         Nome novoNome     = lerDominioString<Nome>(promptNome);
         Senha novaSenha   = lerDominioString<Senha>("Nova senha (Ex: A1b$2): ");
-        Ramal novoRamal   = lerDominioInt<Ramal>("Novo ramal (valor inteiro): ");
+        Ramal novoRamal   = lerDominioString<Ramal>("Novo ramal (00-50, dois digitos): ");
     
         try {
             servicoGerente->editar(emailGerente, novoNome, novaSenha, novoRamal);
@@ -437,7 +442,7 @@ void CtrlApresentacaoQuarto::executarCadastroQuarto(const string& codigoHotel) {
     Numero numeroDom         = lerDominioInt<Numero>("Numero do quarto: ");
     Capacidade capacidadeDom = lerDominioInt<Capacidade>("Capacidade do quarto: ");
     Dinheiro diariaDom       = lerDominioInt<Dinheiro>("Diaria (em centavos): ");
-    Ramal ramalDom           = lerDominioInt<Ramal>("Ramal: ");
+    Ramal ramalDom           = lerDominioString<Ramal>("Ramal (00-50, dois digitos): ");
 
     try {
         Codigo codigoHotelDom;          codigoHotelDom.setValor(codigoHotel);
@@ -578,12 +583,12 @@ void CtrlApresentacaoQuarto::executarEditarQuarto(const string& codigoHotel, con
     promptDia += "): ";
 
     string promptRam = "Digite o NOVO RAMAL (atual: ";
-    promptRam += to_string(quartoAtual.getRamal().getValor());
+    promptRam += quartoAtual.getRamal().getValor();
     promptRam += "): ";
 
     Capacidade capacidadeDom = lerDominioInt<Capacidade>(promptCap);
     Dinheiro diariaDom       = lerDominioInt<Dinheiro>(promptDia);
-    Ramal ramalDom           = lerDominioInt<Ramal>(promptRam);
+    Ramal ramalDom           = lerDominioString<Ramal>(promptRam);
 
     try {
         servicoQuarto->editar(codigoDom, numeroDom, capacidadeDom, diariaDom, ramalDom);

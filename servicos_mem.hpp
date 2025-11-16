@@ -126,6 +126,7 @@ class ServicoReservaMem : public IServicoReserva {
 
     map<string, Reserva> reservas;
     multimap<ChaveQuarto, string> idxResPorQuarto;
+    multimap<string, string> idxResPorHospede;
     ServicoHotelMem* servicoHotel = nullptr;
     ServicoQuartoMem* servicoQuarto = nullptr;
     ServicoHospedeMem* servicoHospede = nullptr;

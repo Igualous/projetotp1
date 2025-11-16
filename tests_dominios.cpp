@@ -176,12 +176,20 @@ int main() {
     cout << "\n[Testando Dominio: Ramal]" << endl;
     Ramal ramal;
     try {
-        ramal.setValor(0);
-        testar("Atribuir ramal valido (0)", true);
-    } catch (const invalid_argument& e) { testar("Atribuir ramal valido (0)", false); }
+        ramal.setValor("05");
+        testar("Atribuir ramal valido (05)", true);
+    } catch (const invalid_argument& e) { testar("Atribuir ramal valido (05)", false); }
 
     try {
-        ramal.setValor(51); // Fora do limite
+        ramal.setValor("5"); // faltando zero
+        testar("Atribuir ramal invalido (sem zero a esquerda)", false);
+    } catch (const invalid_argument& e) {
+        testar("Atribuir ramal invalido (sem zero a esquerda)", true);
+        cout << "    -> Msg: " << e.what() << endl;
+    }
+
+    try {
+        ramal.setValor("51"); // Fora do limite
         testar("Atribuir ramal invalido (51)", false);
     } catch (const invalid_argument& e) {
         testar("Atribuir ramal invalido (51)", true);

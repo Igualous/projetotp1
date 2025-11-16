@@ -173,15 +173,18 @@ class Ramal {
 private:
     static const int MIN = 0;
     static const int MAX = 50;
-    int valor = MIN;
+    std::string valor = "00";
 
-    void validar(int ramal);
+    void validar(const std::string& ramal);
+    static std::string formatar(int ramal);
 
 public:
+    void setValor(const std::string& ramal);
     void setValor(int ramal);
-    int getValor() const;
+    const std::string& getValor() const;
+    int getValorNumerico() const;
 };
-inline int Ramal::getValor() const { return valor; }
+inline const std::string& Ramal::getValor() const { return valor; }
 
 /**
  * @brief Dominio que representa senhas com regras rigidas de composicao.
