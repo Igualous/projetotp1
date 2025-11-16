@@ -11,31 +11,11 @@
 #include "interfaces.hpp"
 #include "servicos_mem.hpp"
 #include "controladoras.hpp"
+#include "globals.hpp"
 
 using namespace std;
 
-/**
- * @brief Limpa a tela de acordo com o sistema operacional.
- */
-void limpa() {
-    #ifdef _WIN32
-        // Comando para limpar o terminal no Windows
-        std::system("cls");
-    #else
-        // Comando para limpar o terminal em sistemas Unix-like (Linux, macOS, etc.)
-        std::system("clear");
-    #endif
-}
 
-/**
- * @brief Gera uma pequena espera para que o usuario leia as mensagens.
- */
-void espera() {
-    double cont = 0;
-    while (cont < 99999) {
-        cont += 0.001;
-    }
-}
 /**
  * @brief Menu principal exibido apos o login do gerente.
  */
@@ -72,10 +52,13 @@ int main() {
     CtrlApresentacaoQuarto ctrlQuarto(&sQuarto, &ctrlReserva);
     CtrlApresentacaoHotel ctrlHotel(&sHotel, &ctrlQuarto);
     CtrlApresentacaoGerente ctrlGerente(&sGerente, &sAuth);
-
+    limpa();
     cout << "Bem-vindo ao Sistema de Gestao de Hoteis!" << endl;
-    
+    for (int i = 0; i < 5; i++) { espera(); }
+
     while (true) {
+        limpa();
+        header();
         cout << "\nMenu Principal:" << endl;
         cout << "1. Login" << endl;
         cout << "2. Cadastrar-se como Hospede" << endl;
@@ -128,6 +111,8 @@ void executarMenuGerente(CtrlApresentacaoHotel* ctrlHotel,
                          CtrlApresentacaoReserva* ctrlReserva,
                          const Email& emailGerente) {
     while (true) {
+        limpa();
+        header();
         cout << "\n--- Menu do Gerente ---" << endl;
         cout << "1. Meu Perfil" << endl;
         cout << "2. Meus Hoteis" << endl;
@@ -155,6 +140,8 @@ void executarMenuGerente(CtrlApresentacaoHotel* ctrlHotel,
                     cout << "Funcionalidade de reservas indisponivel." << endl;
                     break;
                 }
+                limpa();
+                header();
                 while (true) {
                     cout << "\n--- Reservas ---" << endl;
                     cout << "1. Listar reservas por hotel" << endl;
@@ -197,6 +184,8 @@ void executarMenuGerente(CtrlApresentacaoHotel* ctrlHotel,
 
 void executarMenuHospede(CtrlApresentacaoReserva* ctrlReserva,
                          const Email& emailHospede) {
+    limpa();
+    header();
     if (!ctrlReserva) {
         cout << "Funcionalidade de reservas indisponivel." << endl;
         return;
