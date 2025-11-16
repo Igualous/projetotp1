@@ -1,3 +1,7 @@
+/**
+ * @file servicos_mem.cpp
+ * @brief Implementa os servicos de aplicacao em memoria.
+ */
 #include "servicos_mem.hpp"
 #include <stdexcept>
 #include <algorithm>
@@ -12,6 +16,10 @@ ServicoQuartoMem::~ServicoQuartoMem() = default;
 bool ServicoAutenticacaoMem::autenticar(const Email& email, const Senha& senha) {
     auto it = credenciais.find(email.getValor());
     return (it != credenciais.end() && it->second == senha.getValor());
+}
+
+void ServicoAutenticacaoMem::cadastrar(const Email& email, const Senha& senha) {
+    credenciais[email.getValor()] = senha.getValor();
 }
 
 // ---------- Gerente ----------
@@ -338,6 +346,15 @@ void ServicoReservaMem::criar(const Codigo& codReserva, const Codigo& codHotel,
         }
     }
 
+    // checar conflitos para o mesmo hospede
+    auto hospedeRange = idxResPorHospede.equal_range(emailHospede.getValor());
+    for (auto it = hospedeRange.first; it != hospedeRange.second; ++it) {
+        const Reserva& r = reservas.at(it->second);
+        if (sobrepoe(chegada, partida, r.getChegada(), r.getPartida())) {
+            throw std::runtime_error("Hospede ja possui reserva no periodo.");
+        }
+    }
+
     Reserva r;
     r.setCodigo(codReserva);
     r.setHotel(codHotel);
@@ -349,6 +366,7 @@ void ServicoReservaMem::criar(const Codigo& codReserva, const Codigo& codHotel,
 
     reservas[key] = r;
     idxResPorQuarto.emplace(chaveQ, key);
+    idxResPorHospede.emplace(emailHospede.getValor(), key);
 }
 
 std::optional<Reserva> ServicoReservaMem::ler(const Codigo& cod) {
@@ -376,6 +394,16 @@ void ServicoReservaMem::editar(const Codigo& cod, const Data& chegada,
         }
     }
 
+    const string hospedeKey = it->second.getHospede().getValor();
+    auto hospedeRange = idxResPorHospede.equal_range(hospedeKey);
+    for (auto cursor = hospedeRange.first; cursor != hospedeRange.second; ++cursor) {
+        if (cursor->second == cod.getValor()) continue;
+        const Reserva& outra = reservas.at(cursor->second);
+        if (sobrepoe(chegada, partida, outra.getChegada(), outra.getPartida())) {
+            throw std::runtime_error("Hospede ja possui reserva no periodo.");
+        }
+    }
+
     it->second.setChegada(chegada);
     it->second.setPartida(partida);
     it->second.setValor(valor);
@@ -385,9 +413,14 @@ void ServicoReservaMem::excluir(const Codigo& cod) {
     auto it = reservas.find(cod.getValor());
     if (it == reservas.end()) return;
     ChaveQuarto cq{ it->second.getHotel().getValor(), it->second.getNumero().getValor() };
+    string hospedeKey = it->second.getHospede().getValor();
     // remove do indice
     for (auto rng = idxResPorQuarto.equal_range(cq); rng.first != rng.second; ) {
         if (rng.first->second == cod.getValor()) rng.first = idxResPorQuarto.erase(rng.first);
+        else ++rng.first;
+    }
+    for (auto rng = idxResPorHospede.equal_range(hospedeKey); rng.first != rng.second; ) {
+        if (rng.first->second == cod.getValor()) rng.first = idxResPorHospede.erase(rng.first);
         else ++rng.first;
     }
     reservas.erase(it);

@@ -1,7 +1,14 @@
+/**
+ * @file tests_smoke.cpp
+ * @brief Executa um smoke test percorrendo os principais fluxos em memoria.
+ */
 #include <iostream>
 #include "interfaces.hpp"
 #include "servicos_mem.hpp"
 
+/**
+ * @brief Executa o smoke test e retorna 0 quando nao ha falhas.
+ */
 int main() {
     // Instancias concretas (em memoria)
     ServicoAutenticacaoMem sAuth;
@@ -27,7 +34,7 @@ int main() {
     try { Cartao c;   c.setValor("4111111111111111");      std::cout << "Cartao OK\n"; }
     catch (const std::exception& e){ std::cout << "Cartao: "   << e.what() << "\n"; }
 
-    try { Ramal r;    r.setValor(10);                      std::cout << "Ramal OK\n"; }
+    try { Ramal r;    r.setValor("10");                    std::cout << "Ramal OK\n"; }
     catch (const std::exception& e){ std::cout << "Ramal: "    << e.what() << "\n"; }
     // ===== fim do diagnostico =====
 
@@ -47,7 +54,7 @@ int main() {
     Numero num;       num.setValor(101);
     Capacidade cap;   cap.setValor(2);
     Dinheiro diaria;  diaria.setValor(25000);
-    Ramal ram;        ram.setValor(10);
+    Ramal ram;        ram.setValor("10");
 
     // Codigos de reserva com 10 chars
     Codigo codRes1;   codRes1.setValor("r000000001");
@@ -64,7 +71,7 @@ int main() {
     std::cout << "Gerente cadastrado? " << (gerenteLido ? "sim" : "nao") << "\n";
 
     Nome nomeAtualizado; nomeAtualizado.setValor("Ana Souza");
-    Ramal novoRamal; novoRamal.setValor(11);
+    Ramal novoRamal; novoRamal.setValor("11");
     sGerente.editar(email, nomeAtualizado, senha, novoRamal);
     auto gerenteEditado = sGerente.ler(email);
     std::cout << "Gerente editado? "

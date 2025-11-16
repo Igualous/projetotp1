@@ -1,3 +1,7 @@
+/**
+ * @file tests_dominios.cpp
+ * @brief Pequena bateria de testes para dominios, entidades e servicos.
+ */
 #include "dominios.hpp"
 #include "entidades.hpp"
 #include "interfaces.hpp"
@@ -8,10 +12,16 @@
 
 using namespace std;
 
+/**
+ * @brief Imprime o resultado de um caso de teste simples.
+ */
 void testar(const string& nomeTeste, bool sucesso) {
     cout << "  " << (sucesso ? "[PASSOU]" : "[FALHOU]") << " : " << nomeTeste << endl;
 }
 
+/**
+ * @brief Executa os testes e retorna 0 quando todos terminam.
+ */
 int main() {
     cout << "--- Iniciando Testes de Dominio ---" << endl;
 
@@ -166,12 +176,20 @@ int main() {
     cout << "\n[Testando Dominio: Ramal]" << endl;
     Ramal ramal;
     try {
-        ramal.setValor(0);
-        testar("Atribuir ramal valido (0)", true);
-    } catch (const invalid_argument& e) { testar("Atribuir ramal valido (0)", false); }
+        ramal.setValor("05");
+        testar("Atribuir ramal valido (05)", true);
+    } catch (const invalid_argument& e) { testar("Atribuir ramal valido (05)", false); }
 
     try {
-        ramal.setValor(51); // Fora do limite
+        ramal.setValor("5"); // faltando zero
+        testar("Atribuir ramal invalido (sem zero a esquerda)", false);
+    } catch (const invalid_argument& e) {
+        testar("Atribuir ramal invalido (sem zero a esquerda)", true);
+        cout << "    -> Msg: " << e.what() << endl;
+    }
+
+    try {
+        ramal.setValor("51"); // Fora do limite
         testar("Atribuir ramal invalido (51)", false);
     } catch (const invalid_argument& e) {
         testar("Atribuir ramal invalido (51)", true);
