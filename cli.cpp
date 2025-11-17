@@ -47,10 +47,10 @@ int main() {
     sRes.setServicosRelacionados(&sHotel, &sQuarto, &sHosp);
 
     CtrlApresentacaoAutenticacao ctrlAuth(&sAuth);
-    CtrlApresentacaoHospede ctrlHosp(&sHosp, &sAuth);
+    CtrlApresentacaoHospede ctrlHosp(&sHosp, &sAuth, &sRes);
     CtrlApresentacaoReserva ctrlReserva(&sRes);
     CtrlApresentacaoQuarto ctrlQuarto(&sQuarto, &ctrlReserva);
-    CtrlApresentacaoHotel ctrlHotel(&sHotel, &ctrlQuarto);
+    CtrlApresentacaoHotel ctrlHotel(&sHotel, &ctrlQuarto, &ctrlHosp);
     CtrlApresentacaoGerente ctrlGerente(&sGerente, &sAuth);
     limpa();
     cout << "Bem-vindo ao Sistema de Gestao de Hoteis!" << endl;
