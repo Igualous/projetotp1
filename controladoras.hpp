@@ -39,15 +39,22 @@ class CtrlApresentacaoHospede {
 private:
     IServicoHospede* servicoHospede;
     IServicoAutenticacao* servicoAuth;
+    IServicoReserva* servicoReserva;
 
 public:
     CtrlApresentacaoHospede(IServicoHospede* servicoHospede,
-                            IServicoAutenticacao* servicoAuth);
+                            IServicoAutenticacao* servicoAuth,
+                            IServicoReserva* servicoReserva);
 
     /**
      * @brief Dialogo de cadastro de um novo hospede.
      */
     void executarCadastro();
+
+    /**
+     * @brief Listar hospedes com reserva em um hotel especifico
+     */
+    void executarListarHospedesComReservas(const std::string& codigoHotel);
 };
 
 /**
@@ -57,9 +64,10 @@ class CtrlApresentacaoHotel {
 private:
     IServicoHotel* servicoHotel;
     CtrlApresentacaoQuarto* ctrlQuarto;
+    CtrlApresentacaoHospede* ctrlHospede;
 
 public:
-    CtrlApresentacaoHotel(IServicoHotel* servico, CtrlApresentacaoQuarto* ctrlQuarto);
+    CtrlApresentacaoHotel(IServicoHotel* servico, CtrlApresentacaoQuarto* ctrlQuarto, CtrlApresentacaoHospede* ctrlHospede);
 
     void executarCadastroHotel(const Email& emailGerente);
     void executarListarHoteis(const Email& emailGerente);

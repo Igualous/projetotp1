@@ -9,6 +9,7 @@
 #include <limits>
 #include <cctype>
 #include <sstream>
+#include <set>
 
 using namespace std;
 
@@ -111,9 +112,11 @@ bool CtrlApresentacaoAutenticacao::executar(Email& emailAutenticado) {
 //------------------------------------------//
 
 CtrlApresentacaoHospede::CtrlApresentacaoHospede(IServicoHospede* servicoHospede,
-                                                 IServicoAutenticacao* servicoAuth) {
+                                                 IServicoAutenticacao* servicoAuth,
+                                                 IServicoReserva* servicoReserva) {
     this->servicoHospede = servicoHospede;
     this->servicoAuth = servicoAuth;
+    this->servicoReserva = servicoReserva;
 }
 
 void CtrlApresentacaoHospede::executarCadastro() {
@@ -137,15 +140,61 @@ void CtrlApresentacaoHospede::executarCadastro() {
     }
 }
 
+void CtrlApresentacaoHospede::executarListarHospedesComReservas(const string& codigoHotel) {
+    cout << "\n--- Hospedes com Reservas no Hotel " << codigoHotel << " ---" << endl;
 
+    Codigo codigoDom;
+    try {
+        codigoDom.setValor(codigoHotel);
+    } catch (const invalid_argument& e) {
+        cout << "Erro: Código de hotel inválido: " << e.what() << endl;
+        return;
+    }
+
+    try {
+        // 1. Obter todas as reservas para o hotel
+        auto reservas = servicoReserva->listarPorHotel(codigoDom);
+        if (reservas.empty()) {
+            cout << "Nao ha reservas cadastradas para este hotel." << endl;
+            return;
+        }
+
+        // 2. Coletar Emails Únicos de Hóspedes
+        std::set<string> emailsUnicos;
+        for (const auto& r : reservas) {
+            emailsUnicos.insert(r.getHospede().getValor());
+        }
+
+        // 3. Buscar e Listar os Hóspedes
+        int index = 0;
+        for (const auto& emailStr : emailsUnicos) {
+            Email emailDom;
+            emailDom.setValor(emailStr);
+            auto hospedeOpt = servicoHospede->ler(emailDom);
+
+            if (hospedeOpt) {
+                const Hospede& h = *hospedeOpt;
+                cout << "[" << index++ << "] " 
+                     << "Email: " << h.getEmail().getValor()
+                     << " | Nome: " << h.getNome().getValor()
+                     << " | Endereco: " << h.getEndereco().getValor()
+                     << endl;
+            }
+        }
+
+    } catch (const runtime_error& e) {
+        cout << "Erro de negocio: " << e.what() << endl;
+    }
+}
 
 //-----------------------------------------------//
 // Implementacao de CtrlApresentacaoHotel        //
 //-----------------------------------------------//
 
-CtrlApresentacaoHotel::CtrlApresentacaoHotel(IServicoHotel* servico, CtrlApresentacaoQuarto* ctrlQuarto) {
+CtrlApresentacaoHotel::CtrlApresentacaoHotel(IServicoHotel* servico, CtrlApresentacaoQuarto* ctrlQuarto, CtrlApresentacaoHospede* ctrlHospede) {
     this->servicoHotel = servico;
     this->ctrlQuarto = ctrlQuarto;
+    this->ctrlHospede = ctrlHospede;
 }
 
 void CtrlApresentacaoHotel::executarCadastroHotel(const Email& emailGerente) {
@@ -218,6 +267,7 @@ void CtrlApresentacaoHotel::executarListarHoteis(const Email& emailGerente) {
         cout << "2 - Excluir hotel" << endl;
         cout << "3 - Gerenciar quartos" << endl;
         cout << "4 - Criar quartos" << endl;
+        cout << "5 - Gerenciar hospedes" << endl;
         cout << "\nO que deseja fazer?: ";
         
         int opcaoGerencia;
@@ -244,6 +294,13 @@ void CtrlApresentacaoHotel::executarListarHoteis(const Email& emailGerente) {
             } else {
                 cout << "Erro: dependencia CtrlApresentacaoQuarto nula." << endl;                
             }
+            break;
+            case 5:
+                if (ctrlHospede) {
+                    ctrlHospede->executarListarHospedesComReservas(codigoHotelEscolhido);
+                } else {
+                    cout << "Erro: dependencia CtrlApresentacaoHospede nula." << endl;
+                }
             break;
             default:
                 cout << "opcao invalida" << endl;
