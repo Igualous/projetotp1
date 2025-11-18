@@ -193,6 +193,78 @@ void CtrlApresentacaoHospede::executarListarHospedesComReservas(const string& co
     }
 }
 
+void CtrlApresentacaoHospede::executarEditarHospede(const string& emailHospede) {
+    limpa();
+    header();
+    cout << "\n--- Editar Perfil de Hospede ---" << endl;
+
+    // validacao de email
+    Email email;
+    try {
+        email.setValor(emailHospede);
+    } catch (const invalid_argument& e) {
+        cout << "Erro: Email invalido: " << e.what() << endl;
+        return;
+    }
+
+    try {
+        auto hospedeOpt = servicoHospede->ler(email);
+        if (!hospedeOpt) {
+            cout << "Erro: Hospede nao encontrado." << endl;
+            return;
+        }
+
+        Nome nome     = lerDominioString<Nome>("Novo Nome (Ex: Joao Silva): ");
+        Cartao cartao = lerDominioString<Cartao>("Novo Cartao (16 digitos): ");
+        Endereco end  = lerDominioString<Endereco>("Novo Endereco (Ex: Rua 1): ");
+
+        servicoHospede->editar(email, nome, cartao, end);
+        cout << "Perfil atualizado com sucesso!" << endl;
+        espera();
+
+    } catch (const runtime_error& e) {
+        cout << "Erro de negocio: " << e.what() << endl;
+    }
+}
+
+void CtrlApresentacaoHospede::executarExcluirHospede(const string& emailHospede) {
+    limpa();
+    header();
+    cout << "\n--- Excluir Perfil de Hospede ---" << endl;
+
+    // validacao de email
+    Email email;
+    try {
+        email.setValor(emailHospede);
+    } catch (const invalid_argument& e) {
+        cout << "Erro: Email invalido: " << e.what() << endl;
+        return;
+    }
+
+    try {
+        auto hospedeOpt = servicoHospede->ler(email);
+        if (!hospedeOpt) {
+            cout << "Erro: Hospede nao encontrado." << endl;
+            return;
+        }
+        cout << "Tem certeza que deseja excluir seu perfil? (s/n): ";
+        char conf;
+        cin >> conf;
+        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Limpar buffer
+        
+        if (tolower(conf) != 's') {
+            cout << "Operacao cancelada pelo usuario." << endl;
+            return;
+        }
+
+        servicoHospede->excluir(email);
+        cout << "Perfil excluido com sucesso!" << endl;
+        espera();
+
+    } catch (const runtime_error& e) {
+        cout << "Erro de negocio: " << e.what() << endl;
+    }
+}
 //-----------------------------------------------//
 // Implementacao de CtrlApresentacaoHotel        //
 //-----------------------------------------------//
