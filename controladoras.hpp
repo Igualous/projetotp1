@@ -52,6 +52,16 @@ public:
     void executarCadastro();
 
     /**
+     * @brief Dialogo de editar um hospede.
+     */
+    void executarEditarHospede(const std::string& emailHospede);
+
+    /**
+    * @brief Dialogo de editar um hospede.
+    */
+    void executarExcluirHospede(const std::string& emailHospede);
+
+    /**
      * @brief Listar hospedes com reserva em um hotel especifico
      */
     void executarListarHospedesComReservas(const std::string& codigoHotel);
