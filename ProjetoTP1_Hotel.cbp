@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="ProjetoTP1_Hotel" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/ProjetoTP1_Hotel" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/ProjetoTP1_Hotel" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-fexceptions" />
+		</Compiler>
+		<Unit filename="../../../projetotp1-main/cli.cpp" />
+		<Unit filename="../../../projetotp1-main/controladoras.cpp" />
+		<Unit filename="../../../projetotp1-main/controladoras.hpp" />
+		<Unit filename="../../../projetotp1-main/dominios.cpp" />
+		<Unit filename="../../../projetotp1-main/dominios.hpp" />
+		<Unit filename="../../../projetotp1-main/entidades.cpp" />
+		<Unit filename="../../../projetotp1-main/entidades.hpp" />
+		<Unit filename="../../../projetotp1-main/globals.cpp" />
+		<Unit filename="../../../projetotp1-main/globals.hpp" />
+		<Unit filename="../../../projetotp1-main/interfaces.hpp" />
+		<Unit filename="../../../projetotp1-main/servicos_mem.cpp" />
+		<Unit filename="../../../projetotp1-main/servicos_mem.hpp" />
+		<Extensions />
+	</Project>
+</CodeBlocks_project_file>
