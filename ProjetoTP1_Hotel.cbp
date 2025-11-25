@@ -32,18 +32,18 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
-		<Unit filename="../../../projetotp1-main/cli.cpp" />
-		<Unit filename="../../../projetotp1-main/controladoras.cpp" />
-		<Unit filename="../../../projetotp1-main/controladoras.hpp" />
-		<Unit filename="../../../projetotp1-main/dominios.cpp" />
-		<Unit filename="../../../projetotp1-main/dominios.hpp" />
-		<Unit filename="../../../projetotp1-main/entidades.cpp" />
-		<Unit filename="../../../projetotp1-main/entidades.hpp" />
-		<Unit filename="../../../projetotp1-main/globals.cpp" />
-		<Unit filename="../../../projetotp1-main/globals.hpp" />
-		<Unit filename="../../../projetotp1-main/interfaces.hpp" />
-		<Unit filename="../../../projetotp1-main/servicos_mem.cpp" />
-		<Unit filename="../../../projetotp1-main/servicos_mem.hpp" />
+		<Unit filename="../projetotp1-main/cli.cpp" />
+		<Unit filename="../projetotp1-main/controladoras.cpp" />
+		<Unit filename="../projetotp1-main/controladoras.hpp" />
+		<Unit filename="../projetotp1-main/dominios.cpp" />
+		<Unit filename="../projetotp1-main/dominios.hpp" />
+		<Unit filename="../projetotp1-main/entidades.cpp" />
+		<Unit filename="../projetotp1-main/entidades.hpp" />
+		<Unit filename="../projetotp1-main/globals.cpp" />
+		<Unit filename="../projetotp1-main/globals.hpp" />
+		<Unit filename="../projetotp1-main/interfaces.hpp" />
+		<Unit filename="../projetotp1-main/servicos_mem.cpp" />
+		<Unit filename="../projetotp1-main/servicos_mem.hpp" />
 		<Extensions />
 	</Project>
 </CodeBlocks_project_file>
